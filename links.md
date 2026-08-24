@@ -1,13 +1,13 @@
 <!-- Pomona College Resources -->
 [its-hpc-email]: mailto:its-hpc@pomona.edu
 [orsp-email]: mailto:orsp@pomona.edu
-[sagehen-wiki]: https://github.com/pomona-college-hpc "Sagehen HPC Workshop Series on GitHub"
+[sagehen-wiki]: https://github.com/Pomona-College "Sagehen HPC Workshop Series on GitHub"
 [ondemand-portal]: https://ondemand.hpc.pomona.edu
 [pomona-isp]: https://www.pomona.edu/its/
 [data-class-guide]: https://www.pomona.edu/its/
 [policy-24]: https://www.pomona.edu/its/
-[ws-13]: https://pomona-college-hpc.github.io/hpc-security-orientation/
-[ws-14]: https://pomona-college-hpc.github.io/data-classification/
+[ws-13]: https://pomona-college.github.io/hpc-security-orientation/
+[ws-14]: https://pomona-college.github.io/hpc-data-classification/
 
 <!-- Regulatory and Compliance -->
 [nist-800-171]: https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final
