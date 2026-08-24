@@ -24,6 +24,7 @@ Three years ago, a researcher at a peer institution was analyzing student health
 During a storage system maintenance window, a misconfiguration briefly exposed the shared directory to the entire campus network. No one noticed immediately. By the time discovered 36 hours later, the directory had been indexed by campus file search tools. The exposure affected 847 students' health records.
 
 The consequences cascaded rapidly:
+
 - **Day 1**: Campus breach notification letter to 847 students
 - **Day 3**: FERPA compliance investigation initiated
 - **Week 1**: Research suspended; all data access revoked
@@ -41,24 +42,28 @@ This wasn't malicious hacking. It was a preventable storage misconfiguration—p
 A single breach can trigger cascading consequences:
 
 **Immediate (Days)**:
+
 - Breach notification to affected individuals
 - Regulatory agency notification
 - Media coverage
 - Social media backlash
 
 **Short-term (Weeks)**:
+
 - Compliance investigations by multiple agencies
 - Suspension of related research
 - Funding agency inquiries
 - Legal team involvement
 
 **Medium-term (Months)**:
+
 - Potential fines (FERPA: $60,000 per violation; HIPAA: $100–$50,000 per record)
 - Settlement negotiations
 - Remediation costs (credit monitoring, notifications, legal fees)
 - Publication retraction or correction
 
 **Long-term (Years)**:
+
 - Reputational damage
 - Lost grant funding
 - Career impact
@@ -105,6 +110,7 @@ Multiple federal laws and regulations require encryption of research data:
 ### HIPAA Security Rule (45 CFR § 164.312(a)(2))
 
 **What it covers**: Protected health information (ePHI)
+
 - Medical diagnoses and treatment
 - Psychological or psychiatric records
 - Medication information
@@ -122,6 +128,7 @@ Multiple federal laws and regulations require encryption of research data:
 ### Export Administration Regulations (EAR) and International Traffic in Arms Regulations (ITAR)
 
 **What it covers**: Research with potential military, security, or dual-use applications
+
 - Cryptography research
 - Materials science (advanced ceramics, composites)
 - Semiconductor manufacturing
@@ -138,6 +145,7 @@ Multiple federal laws and regulations require encryption of research data:
 ### NIST SP 800-171 (Controlled Unclassified Information)
 
 **What it covers**: Any federally funded research with restrictions
+
 - CUI data (research sensitive for national security reasons)
 - Data with export control implications
 - Data with patent/IP protection value

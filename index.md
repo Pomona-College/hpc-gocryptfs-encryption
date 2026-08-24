@@ -51,7 +51,7 @@ Key backup, password management, lab group management, security best practices, 
 ## Key Facts
 
 - **Encryption:** AES-256-GCM (hardware-accelerated on Sagehen)
-- **Key derivation:** Argon2 (memory-hard, brute-force resistant)
+- **Key derivation:** scrypt (memory-hard, brute-force resistant)
 - **Performance overhead:** 5–10% CPU, 10–20% I/O typical
 - **Password requirement:** 14+ characters ([NIST SP 800-63B][nist-800-63b])
 - **No password recovery:** Forgotten passwords mean permanently lost data

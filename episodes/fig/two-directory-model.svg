@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 480" width="860" height="480" font-family="Arial, Helvetica, sans-serif" role="img">
+  <title>The gocryptfs two-directory model</title>
+  <desc>A cipher directory always encrypted on disk, and a plain directory that exists only while mounted; gocryptfs translates between them via FUSE</desc>
+  <defs>
+    <filter id="s2d" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+    <marker id="a2d" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#003366"/>
+    </marker>
+    <marker id="a2dr" markerWidth="9" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="9 0, 0 3.5, 9 7" fill="#003366"/>
+    </marker>
+  </defs>
+
+  <!-- Cipher directory card -->
+  <g filter="url(#s2d)">
+    <rect x="30" y="40" width="330" height="230" rx="10" fill="#FDECEF" stroke="#DC3545" stroke-width="2"/>
+    <rect x="30" y="40" width="330" height="38" rx="10" fill="#DC3545"/>
+    <rect x="30" y="60" width="330" height="18" fill="#DC3545"/>
+    <text x="195" y="64" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">Cipher Directory — on disk</text>
+    <text x="195" y="102" text-anchor="middle" fill="#8B1E2C" font-size="12" font-family="monospace">/bigdata/lab/&lt;labname&gt;/mydata_cipher/</text>
+    <text x="60" y="128" fill="#8B1E2C" font-size="12.5" font-family="monospace">gocryptfs.conf</text>
+    <text x="60" y="150" fill="#8B1E2C" font-size="12.5" font-family="monospace">4A3Lx7=9zQ_...  (scrambled)</text>
+    <text x="60" y="172" fill="#8B1E2C" font-size="12.5" font-family="monospace">K2mNp1=5jR_...  (scrambled)</text>
+    <line x1="55" y1="188" x2="335" y2="188" stroke="#DC3545" stroke-opacity="0.35"/>
+    <text x="195" y="212" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Encrypted filenames and contents</text>
+    <text x="195" y="232" text-anchor="middle" fill="#8B1E2C" font-size="12.5" font-weight="bold">ALWAYS exists, always encrypted</text>
+    <text x="195" y="252" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Safe even if disk is read directly</text>
+  </g>
+
+  <!-- Plain directory card -->
+  <g filter="url(#s2d)">
+    <rect x="500" y="40" width="330" height="230" rx="10" fill="#EAF6EC" stroke="#28A745" stroke-width="2"/>
+    <rect x="500" y="40" width="330" height="38" rx="10" fill="#28A745"/>
+    <rect x="500" y="60" width="330" height="18" fill="#28A745"/>
+    <text x="665" y="64" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">Plain Directory — mounted view</text>
+    <text x="665" y="102" text-anchor="middle" fill="#1E5B2E" font-size="12" font-family="monospace">/scratch/$USER/mydata_plain/</text>
+    <text x="530" y="128" fill="#1E5B2E" font-size="12.5" font-family="monospace">data.csv</text>
+    <text x="530" y="150" fill="#1E5B2E" font-size="12.5" font-family="monospace">analysis.py</text>
+    <text x="530" y="172" fill="#1E5B2E" font-size="12.5" font-family="monospace">results.txt</text>
+    <line x1="525" y1="188" x2="805" y2="188" stroke="#28A745" stroke-opacity="0.35"/>
+    <text x="665" y="212" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Real filenames, readable contents</text>
+    <text x="665" y="232" text-anchor="middle" fill="#1E5B2E" font-size="12.5" font-weight="bold">Exists ONLY while mounted</text>
+    <text x="665" y="252" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Decrypted on the fly, in memory</text>
+  </g>
+
+  <!-- Middle translation arrows -->
+  <path d="M 365,130 L 495,130" fill="none" stroke="#003366" stroke-width="2" marker-end="url(#a2d)" marker-start="url(#a2dr)"/>
+  <g filter="url(#s2d)">
+    <rect x="360" y="146" width="140" height="46" rx="8" fill="#004B87"/>
+    <text x="430" y="165" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="bold">gocryptfs + FUSE</text>
+    <text x="430" y="183" text-anchor="middle" fill="#D4A843" font-size="11.5">encrypt / decrypt</text>
+  </g>
+
+  <!-- Mount / unmount commands -->
+  <g filter="url(#s2d)">
+    <rect x="70" y="320" width="340" height="60" rx="8" fill="#EAF1F7" stroke="#004B87" stroke-width="2"/>
+    <text x="240" y="345" text-anchor="middle" fill="#003366" font-size="13" font-weight="bold">Mount to work with your data:</text>
+    <text x="240" y="366" text-anchor="middle" fill="#003366" font-size="11" font-family="monospace">gocryptfs .../mydata_cipher /scratch/$USER/mydata_plain</text>
+  </g>
+  <g filter="url(#s2d)">
+    <rect x="450" y="320" width="340" height="60" rx="8" fill="#EAF1F7" stroke="#004B87" stroke-width="2"/>
+    <text x="620" y="345" text-anchor="middle" fill="#003366" font-size="13" font-weight="bold">Unmount when done:</text>
+    <text x="620" y="366" text-anchor="middle" fill="#003366" font-size="11" font-family="monospace">fusermount -u /scratch/$USER/mydata_plain</text>
+  </g>
+
+  <!-- Bottom key insight -->
+  <g filter="url(#s2d)">
+    <rect x="150" y="410" width="560" height="48" rx="8" fill="#D4A843" stroke="#004B87" stroke-width="2"/>
+    <text x="430" y="430" text-anchor="middle" fill="#000" font-size="12" font-weight="bold">Mountpoint must be node-local (/scratch) inside a compute session — FUSE refuses /bigdata (BeeGFS).</text>
+    <text x="430" y="448" text-anchor="middle" fill="#000" font-size="12">When unmounted only the encrypted cipher directory exists; nothing decrypted is ever written to disk.</text>
+  </g>
+</svg>

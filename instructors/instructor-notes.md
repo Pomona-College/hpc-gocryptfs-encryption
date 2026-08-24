@@ -42,8 +42,13 @@ title: Instructor Notes
 
 ### Technical Setup Checklist
 
+**Critical for all live demos:** run them from an interactive compute session
+(`srun --pty bash`), with mountpoints on node-local `/scratch/$USER/` — FUSE
+cannot mount onto `/bigdata` or `/rhome` (BeeGFS), and the login node is not
+for gocryptfs daemons.
+
 - [ ] **Access verification:** Confirm your own Sagehen account access; test gocryptfs module availability (`module load gocryptfs; gocryptfs --version`)
-- [ ] **Demo vaults:** Create 3–4 pre-initialized demo encrypted vaults on `/bigdata/demo` for live demonstrations (use temporary demo-only passwords, document separately)
+- [ ] **Demo vaults:** Create 3–4 pre-initialized demo encrypted vaults on `/bigdata/lab/awilsonlab/demo` for live demonstrations (use temporary demo-only passwords, document separately)
 - [ ] **Test commands:** Verify mounting/unmounting work reliably; test both interactive and non-interactive (password-from-file) mounting
 - [ ] **File system layout:** Confirm understanding of Sagehen storage: `/rhome` (home), `/bigdata` (shared lab), `/scratch` (non-persistent), `/tmpfs` (RAM-backed)
 - [ ] **Quota checks:** Verify demo account has 5–10 GB free on `/bigdata` for participant exercises
@@ -71,7 +76,7 @@ You should be familiar with:
 - **gocryptfs command syntax:** `-init`, mount operation (options, output format), unmount (`fusermount -u`), both interactive and non-interactive modes
 - **Sagehen directory structure and quotas:** Storage locations, purpose, quota limits, how to check quota
 - **Data classification and compliance:** When RESTRICTED data requires encryption, FERPA/HIPAA/EAR/ITAR basics, Pomona ITS Policy 24
-- **Encryption fundamentals:** AES-256-GCM properties, Argon2 memory-hard design, why strong passwords matter
+- **Encryption fundamentals:** AES-256-GCM properties, scrypt memory-hard design, why strong passwords matter
 - **FUSE (Filesystem in Userspace):** Basic concept (virtual filesystem layer), `fusermount` command, how mounting works
 - **Common gocryptfs errors:** "Bad password," "Already mounted," "Permission denied," "Disk quota exceeded," how to diagnose and fix
 - **SLURM integration patterns:** When to mount (job start), when to unmount (job cleanup), trap patterns, error handling
@@ -176,7 +181,7 @@ You should be familiar with:
 
 1. **Four scenario discussion (10 min, interleaved with teaching):**
 
-   - **Scenario A:** Postdoc has 50 patient samples with genetic IDs. Stores on `/bigdata/lab/genetics`. Q: "Does this data need encryption? Why? Who should manage the password—postdoc or PI? What if postdoc leaves?"
+   - **Scenario A:** Postdoc has 50 patient samples with genetic IDs. Stores on `/bigdata/lab/awilsonlab/genetics`. Q: "Does this data need encryption? Why? Who should manage the password—postdoc or PI? What if postdoc leaves?"
      - Answer: Yes, RESTRICTED. Postdoc should hold password; PI should have emergency access. Document succession plan.
 
    - **Scenario B:** Graduate student working on pre-publication machine-learning model. Wants to back up code to personal laptop. Q: "PROPRIETARY data on personal device—how to protect?"
@@ -243,7 +248,7 @@ You should be familiar with:
       analysis_code.py
    
    On disk (ciphertext, encrypted):
-   /bigdata/lab/vault.gocryptfs/      <- physical storage (encrypted)
+   /bigdata/lab/awilsonlab/vault.gocryptfs/      <- physical storage (encrypted)
       gocryptfs.conf
       xyz123abc...                      <- encrypted files (gibberish)
       def456...
@@ -257,7 +262,7 @@ You should be familiar with:
 3. **FUSE mechanics (4 min):** Simplify:
    - User reads file from `/home/alice/vault/patient_data.csv`
    - FUSE intercepts read → asks gocryptfs to decrypt
-   - gocryptfs retrieves encrypted file from `/bigdata/lab/vault.gocryptfs`, decrypts using password, returns plaintext
+   - gocryptfs retrieves encrypted file from `/bigdata/lab/awilsonlab/vault.gocryptfs`, decrypts using password, returns plaintext
    - User sees plaintext; disk remains encrypted
    - When unmounted, plaintext access goes away; decrypted data is no longer in RAM
 
@@ -284,7 +289,7 @@ You should be familiar with:
 
 **Key Concepts:**
 - AES-256-GCM: NIST-approved, strong, authenticated encryption
-- Argon2: memory-hard key derivation, resistant to brute-force
+- scrypt: memory-hard key derivation, resistant to brute-force
 - Typical overhead: 5–15% on disk I/O
 - Alternatives exist; gocryptfs balances security, usability, performance
 
@@ -298,10 +303,10 @@ You should be familiar with:
    - No known practical attacks on AES-256
    - High-level math: not required for users; emphasis is on "NIST says this is strong"
 
-2. **Argon2 (3 min):**
+2. **scrypt key derivation (3 min):**
    - Key derivation function: converts password to cryptographic key
    - Memory-hard design: requires significant RAM, resists GPU/ASIC brute-force
-   - Password can be relatively short (e.g., 14 chars); Argon2 stretches it into strong key
+   - Password can be relatively short (e.g., 14 chars); scrypt stretches it into a strong key
    - Tuning: gocryptfs defaults are good; advanced users can adjust time/memory cost
 
 3. **Performance (4 min):** Benchmark results (on typical Sagehen hardware):
@@ -315,7 +320,7 @@ You should be familiar with:
 
    | Tool | Encryption | Ease of Use | Performance | Best For |
    |------|------------|------------|-------------|----------|
-   | **gocryptfs** | AES-256-GCM + Argon2 | High | 90–95% | Per-directory, user-friendly |
+   | **gocryptfs** | AES-256-GCM + scrypt | High | 90–95% | Per-directory, user-friendly |
    | **VeraCrypt** | AES (multiple modes) | Medium | 85–90% | Full-disk or container encryption |
    | **LUKS** | AES-256 | Low (admin only) | 95%+ | Linux full-disk encryption (system level) |
    | **EncFS** | AES (older) | High | 80–85% | Legacy; not recommended for new projects |
@@ -334,7 +339,7 @@ You should be familiar with:
 
 **Timing Guidance:**
 - AES-256-GCM: 5 min (enough detail for confidence)
-- Argon2: 3 min (brief overview sufficient)
+- scrypt: 3 min (brief overview sufficient)
 - Performance: 4 min (concrete numbers matter)
 - Alternatives: 3 min (context, not deep dive)
 
@@ -355,11 +360,11 @@ You should be familiar with:
 **Teaching Approach:**
 
 1. **Naming strategy (4 min):** Guide participants through naming decisions:
-   - Ciphertext vault directory (on-disk storage): `/bigdata/lab/vault_PROJECTNAME_YEAR`
-     - Example: `/bigdata/lab/vault_cardio_2026`
+   - Ciphertext vault directory (on-disk storage): `/bigdata/lab/awilsonlab/vault_PROJECTNAME_YEAR`
+     - Example: `/bigdata/lab/awilsonlab/vault_cardio_2026`
      - Include project name + year; easy to organize and archive
    - Mount point (decrypted access): `/rhome/alice/PROJECTNAME_data`
-     - Example: `/rhome/alice/cardio_data`
+     - Example: `/scratch/$USER/cardio_data`
      - Shorter, obvious purpose, in home directory for quick access
    - Consistent naming across lab enables handoff and documentation
 
@@ -385,7 +390,7 @@ You should be familiar with:
 
 **Hands-On Exercise (10 min):** Participants plan their own vault:
 1. Decide on project/data purpose
-2. Choose ciphertext path: `/bigdata/lab/vault_PROJECTNAME_YEAR`
+2. Choose ciphertext path: `/bigdata/lab/awilsonlab/vault_PROJECTNAME_YEAR`
 3. Choose mount point: `/rhome/alice/PROJECTNAME_data`
 4. Generate strong password in Bitwarden/1Password
 5. Write down plan on worksheet (to be reviewed before initialization)
@@ -421,45 +426,45 @@ You should be familiar with:
 
 1. **Initialization command (4 min):** Live demo with participants following along:
    ```bash
-   gocryptfs -init /bigdata/lab/vault_cardio_2026
+   gocryptfs -init /bigdata/lab/awilsonlab/vault_cardio_2026
    ```
    - Prompts for password (twice for confirmation)
    - Creates gocryptfs.conf (encrypted config file)
    - Creates master key (also in gocryptfs.conf, encrypted)
    - Output: "The filesystem has been successfully created."
-   - Time: ~5 seconds (Argon2 derivation is intentionally slow)
+   - Time: ~5 seconds (scrypt derivation is intentionally slow)
 
 2. **First mount (3 min):**
    ```bash
-   gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data
+   gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data
    ```
    - Prompts for password
    - Mount succeeds silently (good sign)
-   - Verify with `ls /rhome/alice/cardio_data/` (shows empty directory)
+   - Verify with `ls /scratch/$USER/cardio_data/` (shows empty directory)
    - Check with `df` to confirm mount point is active
 
 3. **Adding test file (2 min):**
    ```bash
-   echo "test data" > /rhome/alice/cardio_data/test.txt
-   cat /rhome/alice/cardio_data/test.txt
+   echo "test data" > /scratch/$USER/cardio_data/test.txt
+   cat /scratch/$USER/cardio_data/test.txt
    ```
    - File is readable from plaintext side
    - Show corresponding encrypted file in ciphertext directory:
    ```bash
-   ls /bigdata/lab/vault_cardio_2026/ (shows encrypted gibberish)
+   ls /bigdata/lab/awilsonlab/vault_cardio_2026/ (shows encrypted gibberish)
    ```
 
 4. **Unmounting (2 min):**
    ```bash
-   fusermount -u /rhome/alice/cardio_data
+   fusermount -u /scratch/$USER/cardio_data
    ```
    - Unmount succeeds silently
-   - Verify with `ls /rhome/alice/cardio_data/` (directory is empty again; mounted filesystem gone)
+   - Verify with `ls /scratch/$USER/cardio_data/` (directory is empty again; mounted filesystem gone)
    - Emphasis: "Data is still encrypted on disk; mounting made it temporarily accessible."
 
 5. **Permissions and security (4 min):**
-   - Vault ownership: `ls -ld /bigdata/lab/vault_cardio_2026/` should show researcher as owner
-   - Mount point permissions: `ls -ld /rhome/alice/cardio_data/` should show `700` (only owner can access)
+   - Vault ownership: `ls -ld /bigdata/lab/awilsonlab/vault_cardio_2026/` should show researcher as owner
+   - Mount point permissions: `ls -ld /scratch/$USER/cardio_data/` should show `700` (only owner can access)
    - Data files in mounted vault: user-readable (because owner mounted it)
    - Anti-pattern: never mount on world-readable path (e.g., `/tmp`)
    - Anti-pattern: never `chmod 777` the mount point after mounting
@@ -472,11 +477,11 @@ You should be familiar with:
    
    - **Mistake 2: Attempting to re-initialize**
      - Error: "gocryptfs.conf already exists"
-     - Recovery: Don't re-initialize. If vault is corrupted, delete `/bigdata/lab/vault_PROJECTNAME_YEAR` and start over (losing data unless backed up).
+     - Recovery: Don't re-initialize. If vault is corrupted, delete `/bigdata/lab/awilsonlab/vault_PROJECTNAME_YEAR` and start over (losing data unless backed up).
    
    - **Mistake 3: Mount point doesn't exist**
      - Error: "mount point doesn't exist"
-     - Recovery: `mkdir -p /rhome/alice/cardio_data` first, then mount.
+     - Recovery: `mkdir -p /scratch/$USER/cardio_data` first, then mount.
    
    - **Mistake 4: Permission denied when accessing mounted files**
      - Error: "Permission denied"
@@ -546,9 +551,9 @@ You should be familiar with:
 
 2. **Mount anatomy (5 min):** Step through mount command and output:
    ```bash
-   gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data
+   gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data
    Password: [hidden input]
-   Mounted successfully. Use 'fusermount -u /rhome/alice/cardio_data' to unmount.
+   Mounted successfully. Use 'fusermount -u /scratch/$USER/cardio_data' to unmount.
    ```
    - Password is not echoed (good security practice)
    - Prompt appears in terminal; user inputs password
@@ -569,10 +574,10 @@ You should be familiar with:
 
 5. **Unmounting (1 min):**
    ```bash
-   fusermount -u /rhome/alice/cardio_data
+   fusermount -u /scratch/$USER/cardio_data
    ```
    - Command succeeds silently (good sign)
-   - Verify: `ls /rhome/alice/cardio_data/` shows empty directory
+   - Verify: `ls /scratch/$USER/cardio_data/` shows empty directory
    - If files are open in that directory, unmount may fail with "Device or resource busy"
 
 **Hands-On Exercise (10 min):** Participants practice mount/unmount cycle multiple times:
@@ -617,7 +622,7 @@ You should be familiar with:
 1. **Non-interactive mounting (4 min):** Use case: SLURM job script needs to mount vault without user interaction.
    ```bash
    gocryptfs -extpass "cat /rhome/alice/.vault_password" \
-     /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data
+     /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data
    ```
    - `-extpass` flag: specify command that outputs password
    - `cat /rhome/alice/.vault_password`: password stored in file
@@ -667,9 +672,9 @@ You should be familiar with:
 **Hands-On Exercise (10 min):** Participants test non-interactive mounting and encounter/resolve an error:
 1. Create password file: `echo "password_here" > /rhome/alice/.vault_password`
 2. Set permissions: `chmod 400 /rhome/alice/.vault_password`
-3. Unmount vault (if currently mounted): `fusermount -u /rhome/alice/cardio_data`
-4. Mount using password file: `gocryptfs -extpass "cat /rhome/alice/.vault_password" /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data`
-5. Verify mount succeeded: `ls /rhome/alice/cardio_data/` (shows files)
+3. Unmount vault (if currently mounted): `fusermount -u /scratch/$USER/cardio_data`
+4. Mount using password file: `gocryptfs -extpass "cat /rhome/alice/.vault_password" /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data`
+5. Verify mount succeeded: `ls /scratch/$USER/cardio_data/` (shows files)
 6. Deliberately cause an error (e.g., change password file to wrong value, try to remount)
 7. Interpret error message
 8. Recover (fix password file, unmount, remount correctly)
@@ -697,10 +702,11 @@ You should be familiar with:
 
 #### Episode 10: SLURM Integration: Decision Framework (15 min teaching + 5 min exercises)
 
-**Learning Outcome:** Participants understand when and how to integrate encryption into HPC workflows and decide between pre-mount vs. mount-in-script strategies.
+**Learning Outcome:** Participants understand when and how to integrate encryption into HPC workflows and decide between interactive-session mounts vs. mount-in-script strategies.
 
 **Key Concepts:**
-- Pre-mount strategy: Researcher mounts vault before submitting SLURM job
+- Mountpoints must be node-local (`/scratch/$USER` or `$TMPDIR`) — FUSE refuses `/bigdata` and `/rhome` (BeeGFS), and mounting requires a compute session, never the login node
+- Interactive-session strategy: researcher mounts inside an `srun --pty bash` session and works there; the mount exists only on that node, for that session
 - Mount-in-script strategy: SLURM job mounts vault at start, unmounts at end
 - Decision factors: Job duration, concurrent jobs, data persistence, security
 - Password handling in scripts: secure file storage, restricted permissions, cleanup
@@ -709,12 +715,12 @@ You should be familiar with:
 
 1. **Two strategies overview (5 min):**
 
-   **Strategy A: Pre-mount (Simple)**
-   - Researcher: `gocryptfs /bigdata/lab/vault /rhome/alice/vault` (interactive, password prompt)
-   - SLURM job: Uses mounted directory (e.g., reads from `/rhome/alice/vault/data.csv`)
-   - Unmount: Researcher does manually after job completes
-   - Pros: Easy, secure (no password in script), works for single short jobs
-   - Cons: Requires manual action; not practical for long-running or many jobs
+   **Strategy A: Interactive-session mount (Simple)**
+   - Researcher: `srun --pty bash`, then `mkdir -p /scratch/$USER/vault` and `gocryptfs /bigdata/lab/awilsonlab/vault_cipher /scratch/$USER/vault` (interactive, password prompt)
+   - Work happens **inside that same session** — a separately submitted sbatch job lands on a different node where the mount doesn't exist
+   - Unmount: `fusermount -u /scratch/$USER/vault` before exiting the session
+   - Pros: Easy, secure (no password file), ideal for exploration and debugging
+   - Cons: Limited to one node and one session; not for batch or unattended work
 
    **Strategy B: Mount-in-script (Automated)**
    - SLURM job: Mounts vault at start using password from file
@@ -727,19 +733,19 @@ You should be familiar with:
 
    | Scenario | Strategy | Why |
    |----------|----------|-----|
-   | One job, I'll wait for output | Pre-mount | Simplest; no script complexity |
-   | Job runs 30 min, I'm away | Pre-mount (leave mounted) | Convenient; I don't need to interact |
+   | Interactive exploration in one session | Interactive-session mount | Simplest; no script complexity |
+   | Any batch job, even short ones | Mount-in-script | Batch jobs land on their own node — a session mount isn't visible there |
    | Many jobs, same encrypted data | Mount-in-script | Automation; avoid manual mounting |
    | Long-running background job (hours/days) | Mount-in-script | Clean separation; auto-unmount |
    | GPU job with encrypted data | Mount-in-script | Ensures cleanup; GPU resources persist across mounts |
    | Job array (100 jobs) | Mount-in-script | Must be automated |
 
-   Bottom line: "Start with pre-mount (simpler). As jobs get more complex, move to mount-in-script."
+   Bottom line: "Interactive work → mount in your srun session. Anything submitted with sbatch → mount inside the job script."
 
 3. **Password handling in scripts (3 min):**
    - Never hard-code password in script (version control, logs expose it)
    - Store password in file: `/rhome/alice/.vault_pw` (400 permissions, home directory only)
-   - Script: `gocryptfs -extpass "cat /rhome/alice/.vault_pw" /bigdata/vault /rhome/alice/vault`
+   - Script: `gocryptfs -extpass "cat /rhome/alice/.vault_pw" /bigdata/lab/awilsonlab/vault_cipher "$TMPDIR/vault"`
    - Cleanup: Script deletes password file after unmount (if using temporary file), OR password file persists (acceptable if 400 permissions)
    - Never commit password file to Git (add to `.gitignore`)
 
@@ -749,8 +755,8 @@ You should be familiar with:
    - Prevents data leakage or resource exhaustion (mounted filesystem left dangling)
 
 **Hands-On Exercise (5 min):** Participants fill out a worksheet:
-- Scenario 1: "I have 20 patient CSV files to analyze. Each analysis takes 5 minutes. Should I pre-mount or mount-in-script?" (Answer: mount-in-script for job array)
-- Scenario 2: "I'm debugging a script interactively on command line. Should I pre-mount or mount-in-script?" (Answer: pre-mount)
+- Scenario 1: "I have 20 patient CSV files to analyze. Each analysis takes 5 minutes. Session mount or mount-in-script?" (Answer: mount-in-script for job array)
+- Scenario 2: "I'm debugging a script interactively on command line. Should I mount in my session or mount-in-script?" (Answer: mount in an interactive srun session)
 - Scenario 3: "I'm submitting 500 image processing jobs to Sagehen. Each job takes 30 minutes." (Answer: mount-in-script with job array)
 
 **Common Pitfalls:**
@@ -793,8 +799,8 @@ You should be familiar with:
    #SBATCH --mem=8G
 
    # Configuration
-   VAULT_CIPHERTEXT="/bigdata/lab/vault_cardio_2026"
-   VAULT_PLAINTEXT="/rhome/alice/cardio_data"
+   VAULT_CIPHERTEXT="/bigdata/lab/awilsonlab/vault_cardio_2026"
+   VAULT_PLAINTEXT="/scratch/$USER/cardio_data"
    PASSWORD_FILE="/rhome/alice/.vault_pw"
 
    # Cleanup function
@@ -1078,7 +1084,7 @@ You should be familiar with:
 
    Example backup strategy:
    ```
-   Original: /bigdata/lab/vault_cardio_2026/
+   Original: /bigdata/lab/awilsonlab/vault_cardio_2026/
    Backup 1: Google Drive folder (institution-managed cloud)
    Backup 2: External USB drive stored in safe (not at desk)
    ```
@@ -1086,7 +1092,7 @@ You should be familiar with:
 3. **Backing up gocryptfs.conf specifically (2 min):**
    Most important single file:
    ```bash
-   cp /bigdata/lab/vault_cardio_2026/gocryptfs.conf /rhome/alice/backup_gocryptfs.conf
+   cp /bigdata/lab/awilsonlab/vault_cardio_2026/gocryptfs.conf /rhome/alice/backup_gocryptfs.conf
    ```
    Store backup in:
    - Password manager (as attachment or plaintext)
@@ -1103,9 +1109,9 @@ You should be familiar with:
    - "This is by design: only you control access."
 
 **Hands-On Exercise (5 min):** Participants implement backup for their vault:
-1. Copy gocryptfs.conf to backup location: `cp /bigdata/lab/vault_PROJECTNAME_2026/gocryptfs.conf /rhome/alice/backup_gocryptfs.conf`
+1. Copy gocryptfs.conf to backup location: `cp /bigdata/lab/awilsonlab/vault_PROJECTNAME_2026/gocryptfs.conf /rhome/alice/backup_gocryptfs.conf`
 2. Upload backup to Google Drive (or institutional cloud)
-3. Copy vault ciphertext directory to external drive (if available): `rsync -av /bigdata/lab/vault_PROJECTNAME_2026 /mnt/external_drive/backup/`
+3. Copy vault ciphertext directory to external drive (if available): `rsync -av /bigdata/lab/awilsonlab/vault_PROJECTNAME_2026 /mnt/external_drive/backup/`
 4. Verify backup integrity: `ls -l /mnt/external_drive/backup/vault_PROJECTNAME_2026/gocryptfs.conf` (should exist)
 5. Document backup location in password manager (note: "Backup of vault_cardio_2026 stored on external drive and Google Drive")
 
@@ -1135,7 +1141,7 @@ You should be familiar with:
 - Password managers: Bitwarden (free), 1Password, LastPass (institution may provide)
 - Secure password generation: random, not memorable
 - Secure sharing: never email plaintext; use password manager sharing or secure vault
-- Password change: Argon2 stretching makes password changes slow but secure
+- Password change: scrypt stretching makes password changes slow but secure
 - Emergency access: PI should have recovery key option
 
 **Teaching Approach:**
@@ -1165,8 +1171,8 @@ You should be familiar with:
    Scenario: "I want to change my vault password (or suspect it's compromised)."
    - Old password: required to decrypt vault
    - New password: required to encrypt new master key
-   - Process: `gocryptfs -passwd /bigdata/lab/vault_cardio_2026` → prompts for old password → prompts for new password
-   - Time: Argon2 stretching takes ~3 seconds (by design; slows brute-force attacks)
+   - Process: `gocryptfs -passwd /bigdata/lab/awilsonlab/vault_cardio_2026` → prompts for old password → prompts for new password
+   - Time: scrypt stretching takes ~3 seconds (by design; slows brute-force attacks)
    - Update password manager: Change stored password in Bitwarden and inform PI if shared
 
 5. **Emergency/succession planning (1 min):**
@@ -1181,7 +1187,7 @@ You should be familiar with:
 3. Store in vault with entry "gocryptfs_vault_cardio_2026"
 4. Note related info: vault path, mount point, purpose
 5. If sharing with PI: Create shared collection, add PI's email
-6. Change vault password: `gocryptfs -passwd /bigdata/lab/vault_cardio_2026`
+6. Change vault password: `gocryptfs -passwd /bigdata/lab/awilsonlab/vault_cardio_2026`
    - Old password: current password (from password manager)
    - New password: use password manager to generate new random password
    - Confirm change: update password manager with new password
@@ -1196,7 +1202,7 @@ You should be familiar with:
 **Teaching Tips:**
 - Password manager demo is worth 5 minutes; makes password management concrete
 - Shared collections in Bitwarden are elegant; show the feature
-- Password change is slow (Argon2) but safe; users should understand the trade-off
+- Password change is slow (scrypt) but safe; users should understand the trade-off
 - Succession planning is often overlooked; emphasize it during this episode
 
 **Timing Guidance:**
@@ -1257,14 +1263,14 @@ You should be familiar with:
      4. Retention period enforced (e.g., 7 years per NIH record retention)
 
 3. **Disaster recovery scenario (4 min):**
-   Scenario: `/bigdata/lab/vault_cardio_2026` directory is accidentally deleted.
+   Scenario: `/bigdata/lab/awilsonlab/vault_cardio_2026` directory is accidentally deleted.
    
    - **Discovery:** Charlie tries to mount vault: "directory doesn't exist"
    - **Recovery steps:**
-     1. Restore from backup: `cp -r /mnt/external_drive/backup/vault_cardio_2026 /bigdata/lab/vault_cardio_2026`
-     2. Verify restore: `ls /bigdata/lab/vault_cardio_2026/gocryptfs.conf` (should exist)
-     3. Mount: `gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/charlie/cardio_data` (with password)
-     4. Verify contents: `ls /rhome/charlie/cardio_data/` (should see files)
+     1. Restore from backup: `cp -r /mnt/external_drive/backup/vault_cardio_2026 /bigdata/lab/awilsonlab/vault_cardio_2026`
+     2. Verify restore: `ls /bigdata/lab/awilsonlab/vault_cardio_2026/gocryptfs.conf` (should exist)
+     3. Mount: `gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data` (with password)
+     4. Verify contents: `ls /scratch/$USER/cardio_data/` (should see files)
      5. Time to recovery: minutes (not hours)
    
    - **Lesson:** Backup was critical; without it, data would be permanently lost.
@@ -1298,14 +1304,14 @@ You should be familiar with:
 **Part 3: Disaster Recovery Test (5 min)**
 1. Simulate disaster: Rename vault directory to test backup
    ```bash
-   mv /bigdata/lab/vault_cardio_2026 /bigdata/lab/vault_cardio_2026.bak
+   mv /bigdata/lab/awilsonlab/vault_cardio_2026 /bigdata/lab/awilsonlab/vault_cardio_2026.bak
    ```
 2. Restore from backup (if available) or use the .bak as mock backup
    ```bash
-   cp -r /bigdata/lab/vault_cardio_2026.bak /bigdata/lab/vault_cardio_2026
+   cp -r /bigdata/lab/awilsonlab/vault_cardio_2026.bak /bigdata/lab/awilsonlab/vault_cardio_2026
    ```
-3. Test mount: `gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data`
-4. Verify contents: `ls /rhome/alice/cardio_data/`
+3. Test mount: `gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data`
+4. Verify contents: `ls /scratch/$USER/cardio_data/`
 5. Document time to recovery
 
 **Common Pitfalls:**
@@ -1357,7 +1363,7 @@ You should be familiar with:
    10. **Report security concerns:** If vault access seems wrong or suspicious, notify ITS immediately.
 
 2. **6 common mistakes (4 min):**
-   1. **Mounting on shared paths (e.g., `/bigdata/lab/myvault_mount`):** Decrypted data visible to all lab members. Fix: Always mount in personal home directory.
+   1. **Mounting on shared paths (e.g., `/bigdata/lab/awilsonlab/myvault_mount`):** Decrypted data visible to all lab members. Fix: Always mount in personal home directory.
    2. **Using weak passwords:** "12345678", "password123". Vulnerable to brute-force. Fix: Use password manager; minimum 14 characters, random.
    3. **No backup strategy:** Relying only on original vault. If hard drive fails, data is lost. Fix: Implement 3-2-1 rule; test annually.
    4. **Hardcoding password in scripts:** Password in version control, logs, email. Fix: Use password file with 400 permissions or password manager.
@@ -1373,15 +1379,15 @@ You should be familiar with:
      5. If overhead > 50%, contact ITS for guidance
    
    - **Permission denied when accessing mounted files:**
-     1. Verify mount point owner: `ls -ld /rhome/alice/cardio_data/` (should show alice as owner)
-     2. Verify file permissions in vault: `ls -l /rhome/alice/cardio_data/` (should be readable)
-     3. Verify gocryptfs.conf permissions: `ls -l /bigdata/lab/vault_cardio_2026/gocryptfs.conf` (should be 600)
+     1. Verify mount point owner: `ls -ld /scratch/$USER/cardio_data/` (should show alice as owner)
+     2. Verify file permissions in vault: `ls -l /scratch/$USER/cardio_data/` (should be readable)
+     3. Verify gocryptfs.conf permissions: `ls -l /bigdata/lab/awilsonlab/vault_cardio_2026/gocryptfs.conf` (should be 600)
      4. If still denied: unmount and remount (`fusermount -u /path && gocryptfs ...`)
    
    - **Mount fails with "Already mounted":**
      1. Check current mounts: `df | grep cardio_data`
      2. If mounted: unmount with `fusermount -u /path`
-     3. If not listed but error persists: remove stale mount point with `rm -rf /rhome/alice/cardio_data` and recreate directory
+     3. If not listed but error persists: remove stale mount point with `rm -rf /scratch/$USER/cardio_data` and recreate directory
    
    - **Password prompt not responding (SSH session):**
      1. Check if terminal is in raw mode: `stty sane`
@@ -1442,32 +1448,32 @@ You should be familiar with:
    **Basic verification (5 minutes):**
    ```bash
    # 1. Mount vault
-   gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data
+   gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data
    
    # 2. Create test file
-   echo "test content $(date)" > /rhome/alice/cardio_data/verification_test.txt
+   echo "test content $(date)" > /scratch/$USER/cardio_data/verification_test.txt
    
    # 3. Verify file readable
-   cat /rhome/alice/cardio_data/verification_test.txt
+   cat /scratch/$USER/cardio_data/verification_test.txt
    
    # 4. Unmount and verify can't access plaintext
-   fusermount -u /rhome/alice/cardio_data
-   ls /rhome/alice/cardio_data/ # Should be empty
+   fusermount -u /scratch/$USER/cardio_data
+   ls /scratch/$USER/cardio_data/ # Should be empty
    
    # 5. Remount and verify test file still there
-   gocryptfs /bigdata/lab/vault_cardio_2026 /rhome/alice/cardio_data
-   cat /rhome/alice/cardio_data/verification_test.txt
+   gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/cardio_data
+   cat /scratch/$USER/cardio_data/verification_test.txt
    
    # 6. Cleanup
-   rm /rhome/alice/cardio_data/verification_test.txt
-   fusermount -u /rhome/alice/cardio_data
+   rm /scratch/$USER/cardio_data/verification_test.txt
+   fusermount -u /scratch/$USER/cardio_data
    ```
    
    **Annual verification (30 minutes):**
    - Restore vault from backup (test location)
    - Mount restored vault with stored password
    - Verify all critical files are present and readable
-   - Calculate checksums: `find /rhome/alice/cardio_data -type f -exec md5sum {} \; > /tmp/checksums.txt`
+   - Calculate checksums: `find /scratch/$USER/cardio_data -type f -exec md5sum {} \; > /tmp/checksums.txt`
    - Document: "Backup verified 2026-04-09; all files intact, 42 files, 2.1 GB"
 
 2. **Sharing encrypted data (5 min):**
@@ -1486,7 +1492,7 @@ You should be familiar with:
    - Less efficient: duplicate copy, slower for large data
    
    **Option 3: Cloud sync (Google Drive, Box)**
-   - Archive vault as tar: `tar czf cardio_vault_backup.tar.gz /bigdata/lab/vault_cardio_2026`
+   - Archive vault as tar: `tar czf cardio_vault_backup.tar.gz /bigdata/lab/awilsonlab/vault_cardio_2026`
    - Upload to Google Drive or institutional cloud
    - Collaborator downloads and restores: `tar xzf cardio_vault_backup.tar.gz`
    - Both encrypt and decrypt independently; good for offsite backup
@@ -1497,7 +1503,7 @@ You should be familiar with:
 3. **Lifecycle maintenance (3 min):**
    
    **Quarterly:**
-   - Check disk usage: `du -sh /bigdata/lab/vault_cardio_2026`
+   - Check disk usage: `du -sh /bigdata/lab/awilsonlab/vault_cardio_2026`
    - Monitor for unexpected growth
    - Clean up old analysis outputs if needed
    
@@ -1517,13 +1523,13 @@ You should be familiar with:
    Scenario: Lab is moving to different HPC cluster with better storage.
    
    - Create vault on new cluster (same name, new storage)
-   - Copy ciphertext directory: `rsync -av /bigdata/lab/vault_cardio_2026 /new_cluster/storage/vault_cardio_2026`
+   - Copy ciphertext directory: `rsync -av /bigdata/lab/awilsonlab/vault_cardio_2026 /new_cluster/storage/vault_cardio_2026`
    - Test mount on new cluster with password
    - Delete from old cluster only after verifying success on new cluster
    - Update scripts, paths, documentation
 
 5. **Password testing and lifecycle (3 min):**
-   - Annual password test: `gocryptfs /bigdata/lab/vault_cardio_2026 /tmp/test_mount` (from password manager password)
+   - Annual password test: `gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /tmp/test_mount` (from password manager password)
    - Confirms password is still accessible and correct
    - If password has been changed (emergency), update password manager immediately
    - Inform PI if password was changed
@@ -1540,9 +1546,9 @@ You should be familiar with:
 **Part 2: Sharing Scenario (5 min)**
 1. Create encrypted zip of vault contents:
    ```bash
-   gocryptfs /bigdata/lab/vault_cardio_2026 /tmp/mount_temp
-   zip -r /rhome/alice/vault_backup.zip /tmp/mount_temp
-   fusermount -u /tmp/mount_temp
+   gocryptfs /bigdata/lab/awilsonlab/vault_cardio_2026 /scratch/$USER/mount_temp
+   zip -r /rhome/alice/vault_backup.zip /scratch/$USER/mount_temp
+   fusermount -u /scratch/$USER/mount_temp
    ```
 2. Note: encrypted zip is secure for transmission (no password needed, recipient uses vault password)
 3. Imagine sending to collaborator: how would they restore it?

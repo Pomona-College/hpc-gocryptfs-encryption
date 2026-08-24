@@ -67,7 +67,7 @@ If you have one encrypted directory, memorizing a password is reasonable. But as
    - Name: "gocryptfs - study_a_cipher"
    - Username: [your username]
    - Password: [your gocryptfs password]
-   - Notes: "Cipher: /bigdata/group/study_a_cipher"
+   - Notes: "Cipher: /bigdata/lab/<labname>/study_a_cipher"
 ```
 
 **Using passwords from Bitwarden in job scripts:**
@@ -80,6 +80,8 @@ If you have one encrypted directory, memorizing a password is reasonable. But as
 PASSWORD=$(cat ~/.gocryptfs_pw)
 echo "$PASSWORD" | gocryptfs "$CIPHER" "$PLAIN" -
 ```
+
+![Where your passphrase should live, from best practice to never-do-this.](fig/password-storage-ladder.png){alt='Ranked ladder titled where should your gocryptfs passphrase live. BEST, green: a password manager such as Bitwarden — generated, unique, backed up, shareable with your lab via a collection. GOOD, blue: a memorized diceware passphrase of five or more random words and at least 14 characters, for example coral-lantern-drift-mesa-copper. LAST RESORT, orange: written down, sealed, and physically locked away, with no hints about what it unlocks, kept separate from your office. NEVER, red: sticky notes, plaintext files, emails, chat messages, or script literals — a chmod 600 passfile for batch jobs is the one scripted exception, covered in Episode 10.'}
 
 ## Passphrase Technique for Strong But Memorable Passwords
 
@@ -166,7 +168,7 @@ As part of security best practices, you should change passwords periodically (an
 
 ```bash
 # Change password for encrypted directory
-gocryptfs -passwd /bigdata/group/secret_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/secret_cipher/
 
 # Prompted for:
 # 1. Current password (to unlock gocryptfs.conf and verify access)
@@ -182,9 +184,9 @@ gocryptfs -passwd /bigdata/group/secret_cipher/
 **Annual rotation:**
 ```bash
 # First working day of year
-gocryptfs -passwd /bigdata/group/study_a_cipher/
-gocryptfs -passwd /bigdata/group/study_b_cipher/
-gocryptfs -passwd /bigdata/group/confidential_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/study_a_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/study_b_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/confidential_cipher/
 ```
 
 **Suspected compromise:**
@@ -195,7 +197,7 @@ gocryptfs -passwd /bigdata/group/confidential_cipher/
 # If you wrote password down and it could be found
 
 # Change immediately (don't wait for annual rotation)
-gocryptfs -passwd /bigdata/group/secret_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/secret_cipher/
 ```
 
 **Personnel change:**
@@ -274,3 +276,6 @@ For maximum security, you could add a 7th word (90.3 bits) or mix in a number or
 - After changing a password, update backups of gocryptfs.conf and test that the new password works.
 - Change passwords annually or immediately if you suspect compromise or personnel changes.
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

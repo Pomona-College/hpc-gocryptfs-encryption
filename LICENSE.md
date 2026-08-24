@@ -1,3 +1,7 @@
+---
+title: "Licenses"
+---
+
 ## Pomona College Authorship
 
 This lesson was created as original content for Pomona College's Research
@@ -10,11 +14,13 @@ Institution: Pomona College, Claremont, California
 This work is licensed under CC-BY 4.0 to promote open educational
 resources and benefit the broader HPC training community.
 
----
+## Lesson Template and Instructional-Material License
 
----
-title: "Licenses"
----
+This lesson is built with [The Carpentries Workbench](https://carpentries.github.io/workbench/)
+lesson template. The license terms below are those of The Carpentries and apply
+to the Workbench template and any Carpentries instructional material
+incorporated in this lesson; the Pomona College content above is licensed
+CC-BY 4.0 as stated.
 
 ## Instructional Material
 

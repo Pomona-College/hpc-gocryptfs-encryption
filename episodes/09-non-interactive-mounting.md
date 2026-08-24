@@ -58,14 +58,14 @@ Not supported on all builds. Avoid unless your gocryptfs explicitly supports it.
 #SBATCH --cpus-per-task=4
 
 # Set paths
-CIPHER=/bigdata/groupname/research_cipher
-PLAIN=/bigdata/groupname/research_plain
+CIPHER=/bigdata/lab/<labname>/research_cipher
+PLAIN=/scratch/$USER/research_plain
 
 # Create plain directory if needed
 mkdir -p $PLAIN
 
 # Mount encrypted directory (non-interactive)
-PASSWORD=$(cat /rhome/username/secure_configs/gocryptfs_password.txt)
+PASSWORD=$(cat /rhome/<myusername>/secure_configs/gocryptfs_password.txt)
 echo "$PASSWORD" | gocryptfs $CIPHER $PLAIN -
 
 # Check mount succeeded
@@ -158,7 +158,7 @@ fi
 #SBATCH --cpus-per-task=4
 
 # Setup
-CIPHER=/bigdata/group/data_cipher
+CIPHER=/bigdata/lab/<labname>/data_cipher
 PLAIN=$TMPDIR/data_plain
 PASSWORD=$(cat ~/.gocryptfs_pw)
 
@@ -252,19 +252,19 @@ Each SLURM script snippet below contains a security problem. Identify the flaw i
 ```bash
 #!/bin/bash
 #SBATCH --job-name=analysis
-echo "R3search$ecure2024!" | gocryptfs /bigdata/lab/cipher /bigdata/lab/plain -
-python3 analyze.py /bigdata/lab/plain/data.csv
-fusermount -u /bigdata/lab/plain
+echo "R3search$ecure2024!" | gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain -
+python3 analyze.py /scratch/$USER/plain/data.csv
+fusermount -u /scratch/$USER/plain
 ```
 
 **Snippet 2:**
 ```bash
 #!/bin/bash
 #SBATCH --job-name=analysis
-PASSWORD=$(cat /bigdata/lab/shared/gocryptfs_password.txt)
-echo "$PASSWORD" | gocryptfs /bigdata/lab/cipher /bigdata/lab/plain -
-python3 analyze.py /bigdata/lab/plain/data.csv
-fusermount -u /bigdata/lab/plain
+PASSWORD=$(cat /bigdata/lab/<labname>/shared/gocryptfs_password.txt)
+echo "$PASSWORD" | gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain -
+python3 analyze.py /scratch/$USER/plain/data.csv
+fusermount -u /scratch/$USER/plain
 ```
 
 **Snippet 3:**
@@ -272,9 +272,9 @@ fusermount -u /bigdata/lab/plain
 #!/bin/bash
 #SBATCH --job-name=analysis
 export GOCRYPTFS_PW="MySecretPass"
-echo "$GOCRYPTFS_PW" | gocryptfs /bigdata/lab/cipher /bigdata/lab/plain -
-python3 analyze.py /bigdata/lab/plain/data.csv
-fusermount -u /bigdata/lab/plain
+echo "$GOCRYPTFS_PW" | gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain -
+python3 analyze.py /scratch/$USER/plain/data.csv
+fusermount -u /scratch/$USER/plain
 ```
 
 ::::::::::::::::::::::::::::::::::::: solution
@@ -286,14 +286,14 @@ The password `R3search$ecure2024!` is written directly in the script file. It is
 **Fix:** Store the password in a separate file with restrictive permissions:
 ```bash
 PASSWORD=$(cat ~/.gocryptfs_pw)   # file with chmod 600
-echo "$PASSWORD" | gocryptfs /bigdata/lab/cipher /bigdata/lab/plain -
+echo "$PASSWORD" | gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain -
 ```
 
 **Snippet 2 — Password file stored on `/bigdata` (world/group-readable location):**
-The password file is at `/bigdata/lab/shared/gocryptfs_password.txt`. Even with correct file permissions, storing the password on `/bigdata` means it sits on the same unencrypted filesystem as the cipher directory, and the path `shared/` suggests group access. This defeats the purpose of encryption.
+The password file is at `/bigdata/lab/<labname>/shared/gocryptfs_password.txt`. Even with correct file permissions, storing the password on `/bigdata` means it sits on the same unencrypted filesystem as the cipher directory, and the path `shared/` suggests group access. This defeats the purpose of encryption.
 **Fix:** Store the password file in `/rhome` (which is encrypted at rest) and ensure permissions are 600:
 ```bash
-PASSWORD=$(cat /rhome/username/.gocryptfs_pw)   # chmod 600, on /rhome
+PASSWORD=$(cat /rhome/<myusername>/.gocryptfs_pw)   # chmod 600, on /rhome
 ```
 
 **Snippet 3 — Password in environment variable without cleanup:**
@@ -301,7 +301,7 @@ The password is exported as an environment variable and never unset. Exported va
 **Fix:** Read from a password file instead, or at minimum unset the variable immediately after use:
 ```bash
 PASSWORD=$(cat ~/.gocryptfs_pw)
-echo "$PASSWORD" | gocryptfs /bigdata/lab/cipher /bigdata/lab/plain -
+echo "$PASSWORD" | gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain -
 unset PASSWORD
 ```
 
@@ -322,3 +322,6 @@ unset PASSWORD
 - Mounts do NOT survive reboots or job completion
 - Implement proper error handling and unmounting in SLURM scripts
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

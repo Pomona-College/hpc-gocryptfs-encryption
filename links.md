@@ -3,9 +3,9 @@
 [orsp-email]: mailto:orsp@pomona.edu
 [sagehen-wiki]: https://github.com/pomona-college-hpc "Sagehen HPC Workshop Series on GitHub"
 [ondemand-portal]: https://ondemand.hpc.pomona.edu
-[pomona-isp]: https://www.pomona.edu/its/policies/information-security-policy
-[data-class-guide]: https://www.pomona.edu/its/policies/data-classification
-[policy-24]: https://www.pomona.edu/its/policies/training-awareness
+[pomona-isp]: https://www.pomona.edu/its/
+[data-class-guide]: https://www.pomona.edu/its/
+[policy-24]: https://www.pomona.edu/its/
 [ws-13]: https://pomona-college-hpc.github.io/hpc-security-orientation/
 [ws-14]: https://pomona-college-hpc.github.io/data-classification/
 
@@ -22,7 +22,7 @@
 [gocryptfs-manpage]: https://github.com/rfjakob/gocryptfs/wiki/Manual
 [fuse-docs]: https://www.kernel.org/doc/html/latest/filesystems/fuse.html
 [aes-gcm-wiki]: https://en.wikipedia.org/wiki/Galois/Counter_Mode
-[argon2-wiki]: https://en.wikipedia.org/wiki/Argon2
+[scrypt-wiki]: https://en.wikipedia.org/wiki/Scrypt
 
 <!-- Password and Key Management -->
 [bitwarden]: https://bitwarden.com

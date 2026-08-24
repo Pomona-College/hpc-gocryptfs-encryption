@@ -28,32 +28,32 @@ Run this quarterly (January, April, July, October) to ensure encryption works an
 ```bash
 # Initialize test cipher directory
 gocryptfs -init /tmp/test_cipher
-mkdir -p /tmp/test_plain
+mkdir -p /scratch/$USER/test_plain
 
 # Test 1: Mount and verify plaintext is readable
-gocryptfs /tmp/test_cipher /tmp/test_plain
-echo "Test data $(date)" > /tmp/test_plain/test.txt
-cat /tmp/test_plain/test.txt  # Should display readable text
+gocryptfs /tmp/test_cipher /scratch/$USER/test_plain
+echo "Test data $(date)" > /scratch/$USER/test_plain/test.txt
+cat /scratch/$USER/test_plain/test.txt  # Should display readable text
 
 # Test 2: Unmount and verify data is inaccessible
-fusermount -u /tmp/test_plain
-ls /tmp/test_plain 2>&1  # Should show error or empty
+fusermount -u /scratch/$USER/test_plain
+ls /scratch/$USER/test_plain 2>&1  # Should show error or empty
 
 # Test 3: Remount with correct password
-gocryptfs /tmp/test_cipher /tmp/test_plain
-cat /tmp/test_plain/test.txt  # Data should appear again
+gocryptfs /tmp/test_cipher /scratch/$USER/test_plain
+cat /scratch/$USER/test_plain/test.txt  # Data should appear again
 
 # Test 4: Verify wrong password fails
-fusermount -u /tmp/test_plain
-echo "wrongpassword" | gocryptfs -q /tmp/test_cipher /tmp/test_plain 2>&1 | grep -i "wrong"  # Should fail
+fusermount -u /scratch/$USER/test_plain
+echo "wrongpassword" | gocryptfs -q /tmp/test_cipher /scratch/$USER/test_plain 2>&1 | grep -i "wrong"  # Should fail
 
 # Test 5: Test backup restoration
 cp /tmp/test_cipher/gocryptfs.conf /tmp/gocryptfs_backup.conf
 mkdir -p /tmp/restore_test
 cp /tmp/gocryptfs_backup.conf /tmp/restore_test/gocryptfs.conf
-gocryptfs /tmp/restore_test /tmp/restore_plain
-ls /tmp/restore_plain  # Restored data should be readable
-fusermount -u /tmp/restore_plain
+gocryptfs /tmp/restore_test /scratch/$USER/restore_plain
+ls /scratch/$USER/restore_plain  # Restored data should be readable
+fusermount -u /scratch/$USER/restore_plain
 
 # Document results
 echo "$(date): Quarterly verification PASS" >> ~/encryption_maintenance.log
@@ -69,15 +69,15 @@ Best for audit trails: each user has their own cipher directory and password.
 
 ```bash
 # Create separate cipher directories for each collaborator
-cp -r /bigdata/group/dataset_cipher /bigdata/group/dataset_alice_cipher
-cp -r /bigdata/group/dataset_cipher /bigdata/group/dataset_bob_cipher
+cp -r /bigdata/lab/<labname>/dataset_cipher /bigdata/lab/<labname>/dataset_alice_cipher
+cp -r /bigdata/lab/<labname>/dataset_cipher /bigdata/lab/<labname>/dataset_bob_cipher
 
 # Each person sets their own password
-gocryptfs -init /bigdata/group/dataset_alice_cipher  # Alice enters password
-gocryptfs -init /bigdata/group/dataset_bob_cipher    # Bob enters password
+gocryptfs -init /bigdata/lab/<labname>/dataset_alice_cipher  # Alice enters password
+gocryptfs -init /bigdata/lab/<labname>/dataset_bob_cipher    # Bob enters password
 
 # Permissions: each person can only access their own
-chmod 700 /bigdata/group/dataset_*_cipher
+chmod 700 /bigdata/lab/<labname>/dataset_*_cipher
 ```
 
 Advantages: audit trails, individual access revocation, per-person password rotation.
@@ -87,19 +87,21 @@ Advantages: audit trails, individual access revocation, per-person password rota
 Safest for sensitive data across institutions:
 
 ```bash
-# Sender: decrypt and transfer
-gocryptfs /bigdata/group/secure_data_cipher /tmp/plaintext
-tar -czf /tmp/dataset.tar.gz -C /tmp plaintext/
+# Sender: decrypt and transfer (inside a compute session)
+mkdir -p /scratch/$USER/plaintext
+gocryptfs /bigdata/lab/<labname>/secure_data_cipher /scratch/$USER/plaintext
+tar -czf /tmp/dataset.tar.gz -C /scratch/$USER plaintext/
+fusermount -u /scratch/$USER/plaintext
 scp /tmp/dataset.tar.gz collaborator.edu:/tmp/  # Use SSH only
-shred -vfz -n 3 /tmp/plaintext
+shred -vfz -n 3 /tmp/dataset.tar.gz   # shred the tarball -- it holds plaintext
 
 # Recipient: receive and re-encrypt
 tar -xzf /tmp/dataset.tar.gz
 gocryptfs -init /home/collaborator/data_cipher
-gocryptfs /home/collaborator/data_cipher /tmp/mount_plain
-cp -r plaintext/* /tmp/mount_plain/
-fusermount -u /tmp/mount_plain
-shred -vfz -n 3 /tmp/plaintext
+gocryptfs /home/collaborator/data_cipher /scratch/$USER/mount_plain
+cp -r plaintext/* /scratch/$USER/mount_plain/
+fusermount -u /scratch/$USER/mount_plain
+shred -vfz -n 3 plaintext/*   # remove the temporary decrypted copies
 ```
 
 **Option 3: rclone crypt for Cloud Storage**
@@ -109,7 +111,7 @@ For cloud-based access (separate from gocryptfs):
 ```bash
 module load rclone
 rclone config create mycrypt crypt --crypt-remote mycloud:
-rclone sync /bigdata/group/research_data/ mycrypt:/research_data/
+rclone sync /bigdata/lab/<labname>/research_data/ mycrypt:/research_data/
 # Share rclone config with collaborators for cloud access
 ```
 
@@ -118,10 +120,10 @@ rclone sync /bigdata/group/research_data/ mycrypt:/research_data/
 **Encrypt immediately**: When data arrives and is classified as restricted, create encrypted directory right away:
 
 ```bash
-gocryptfs -init /bigdata/group/new_study_cipher
-gocryptfs /bigdata/group/new_study_cipher /tmp/mount
-cp -r /tmp/incoming_data/* /tmp/mount/
-fusermount -u /tmp/mount
+gocryptfs -init /bigdata/lab/<labname>/new_study_cipher
+gocryptfs /bigdata/lab/<labname>/new_study_cipher /scratch/$USER/mount
+cp -r /tmp/incoming_data/* /scratch/$USER/mount/
+fusermount -u /scratch/$USER/mount
 ```
 
 **Retention timeline** (check your IRB/compliance office):
@@ -135,7 +137,7 @@ Document retention dates in an inventory file.
 **Deletion**: After retention period, simple deletion is sufficient (encrypted data is unreadable without the password/key):
 
 ```bash
-rm -r /bigdata/group/interviews_cipher/
+rm -r /bigdata/lab/<labname>/interviews_cipher/
 rm /rhome/$(whoami)/backup/gocryptfs_interviews.backup
 ```
 
@@ -143,7 +145,7 @@ rm /rhome/$(whoami)/backup/gocryptfs_interviews.backup
 
 **OnDemand (Jupyter, RStudio, VS Code)**: Mount encrypted data in your session script:
 ```bash
-gocryptfs /bigdata/group/analysis_cipher /scratch/analysis_plain
+gocryptfs /bigdata/lab/<labname>/analysis_cipher /scratch/$USER/analysis_plain
 # Apps access mounted plaintext directory
 ```
 
@@ -151,9 +153,9 @@ gocryptfs /bigdata/group/analysis_cipher /scratch/analysis_plain
 
 **rclone**: Mount encrypted data, then sync to cloud:
 ```bash
-gocryptfs /bigdata/group/backup_cipher /tmp/backup_plain
-rclone sync /tmp/backup_plain cloud-remote:/backup/
-fusermount -u /tmp/backup_plain
+gocryptfs /bigdata/lab/<labname>/backup_cipher /scratch/$USER/backup_plain
+rclone sync /scratch/$USER/backup_plain cloud-remote:/backup/
+fusermount -u /scratch/$USER/backup_plain
 ```
 
 ## Maintenance Schedule
@@ -189,7 +191,7 @@ fusermount -u /tmp/backup_plain
 4. **Gather information before IT arrives**:
    ```bash
    mount | grep -E 'cipher|plain'
-   find /bigdata/group/ -type f -newermt "24 hours ago" -ls
+   find /bigdata/lab/<labname>/ -type f -newermt "24 hours ago" -ls
    last -f /var/log/wtmp | head -20
    ```
 5. **Let IT professionals handle the investigation**—they'll preserve evidence, check logs, advise on password changes, and coordinate compliance notification if needed.
@@ -226,7 +228,7 @@ Successful completion shows:
 Identify all security problems in this setup and recommend fixes:
 
 **Current Setup**:
-- HIPAA patient interviews in unencrypted `/bigdata/group/research/` with `chmod 755`
+- HIPAA patient interviews in unencrypted `/bigdata/lab/<labname>/research/` with `chmod 755`
 - Encrypted cipher mounted 24/7 to `/home/peterson/data_plain` with `chmod 755`
 - Password "research123" hardcoded in git, shared by 5 lab members
 - `gocryptfs.conf` backup on unencrypted laptop (lab WiFi), never tested
@@ -238,11 +240,11 @@ Identify all security problems in this setup and recommend fixes:
 
 :::::::::::::::::::::::::::::::::::: solution
 
-1. Move patient data to cipher only: `mv /bigdata/group/research/* /tmp/plain/`
-2. Fix permissions: `chmod 700 /home/peterson/data_plain` and cipher dir
-3. Change password: `gocryptfs -change-password /bigdata/group/research_cipher`; remove from git
+1. Move patient data to cipher only: `mv /bigdata/lab/<labname>/research/* /scratch/$USER/plain/` (with the cipher mounted there)
+2. Fix permissions on the cipher dir (`chmod 700`) — and relocate the mountpoint to `/scratch/$USER/`: mounts under `/rhome` fail because it is BeeGFS
+3. Change password: `gocryptfs -change-password /bigdata/lab/<labname>/research_cipher`; remove from git
 4. Unmount daily: Add to `~/.bash_logout`: `fusermount -u /home/peterson/data_plain 2>/dev/null`
-5. Create per-person directories: `cp -r /bigdata/group/research_cipher /bigdata/group/research_alice_cipher`; each sets own password
+5. Create per-person directories: `cp -r /bigdata/lab/<labname>/research_cipher /bigdata/lab/<labname>/research_alice_cipher`; each sets own password
 6. Update account password: `passwd` to 14+ characters
 7. Test backup: Restore to `/tmp/restore_test` and verify mounting
 8. Move backup to secure location: `cp /laptop/backup/gocryptfs.conf /rhome/peterson/backup/`; `chmod 600`
@@ -263,3 +265,6 @@ Priority: (1) remove password from git, (2) change encryption password, (3) unmo
 - Treat rclone crypt as a separate encryption layer for cloud-based sharing scenarios
 - Document your encrypted directories, backup locations, and retention dates in an inventory file
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

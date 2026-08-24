@@ -158,12 +158,14 @@ When you back up gocryptfs.conf, preserve it exactly:
 
 ```bash
 # Good - full backup
-cp /bigdata/group/secret_cipher/gocryptfs.conf \
+cp /bigdata/lab/<labname>/secret_cipher/gocryptfs.conf \
    ~/backup/gocryptfs_secret.conf.backup
 
 # Not ideal - modified copy (might lose important data)
 # Never edit, delete fields, or simplify the backup copy
 ```
+
+![Back up gocryptfs.conf the moment you initialize -- skipping this step leaves you one deleted file away from permanent loss.](fig/key-backup-decision.png){alt='Decision flow for key backup. Running gocryptfs -init creates gocryptfs.conf, which holds the master key encrypted with your password. At the decision point, back up gocryptfs.conf question mark. The YES branch, marked critical, copies the file to a backup directory in /rhome with chmod 600 and also exports it to a secure off-cluster location such as an encrypted USB drive or key escrow with ITS. The NO branch warns you are one corrupted or deleted file away from permanent data loss, because without the conf file there is no decryption even with the password. A warning banner states that if gocryptfs.conf is lost the data is unrecoverable forever.'}
 
 ## The 3-2-1 Backup Rule Applied to gocryptfs.conf
 
@@ -174,7 +176,7 @@ The 3-2-1 rule is a best practice for critical files: **3 copies, 2 different me
 ```
 Requirement: 3 copies of gocryptfs.conf
 
-Copy 1: /rhome/username/backup/gocryptfs_secret.conf
+Copy 1: /rhome/<myusername>/backup/gocryptfs_secret.conf
   - Location: Sagehen HPC cluster, /rhome (regularly backed up)
   - Media: Network-attached storage (BeeGFS)
   - Access: Accessible from any Sagehen login
@@ -205,10 +207,10 @@ chmod 700 ~/backup/gocryptfs_keys
 **Step 2: Copy gocryptfs.conf to backup location**
 ```bash
 # Assuming you have encrypted directory at:
-# /bigdata/group/secret_cipher/ (with gocryptfs.conf inside)
+# /bigdata/lab/<labname>/secret_cipher/ (with gocryptfs.conf inside)
 
 # Copy to /rhome backup (Copy 1)
-cp /bigdata/group/secret_cipher/gocryptfs.conf \
+cp /bigdata/lab/<labname>/secret_cipher/gocryptfs.conf \
    ~/backup/gocryptfs_keys/gocryptfs_secret_2024_backup.conf
 
 # Set permissions to 600 (owner read/write only)
@@ -273,6 +275,8 @@ Body: Automatic backup - see attachment
 Attachment: gocryptfs_secret_2024_backup.conf
 ```
 
+![Keep at least two backups of gocryptfs.conf in different locations, and test them regularly.](fig/key-backup-workflow.png){alt='Diagram of gocryptfs.conf master key backup locations. The master key file, marked protect this, fans out to three locations: location 1 cloud storage such as Google Drive or OneDrive in encrypted form, location 2 removable media such as a USB drive stored securely, and location 3 off-site such as a safety deposit box or key escrow with ITS. A gold box states the backup rule: at least 2 backups in different locations, tested regularly.'}
+
 ## Backup Location Comparison Table
 
 | Location | Pros | Cons | Risk Rating | Recommendation |
@@ -290,7 +294,7 @@ Attachment: gocryptfs_secret_2024_backup.conf
 
 ## Challenge: Design Your Backup Strategy
 
-You are a researcher working with HIPAA-regulated patient interview transcripts stored in an encrypted directory at `/bigdata/neurolab/interviews_cipher/` on the Sagehen cluster. Design a complete 3-2-1 backup plan for your `gocryptfs.conf` and password. Your plan must address:
+You are a researcher working with HIPAA-regulated patient interview transcripts stored in an encrypted directory at `/bigdata/lab/neurolab/interviews_cipher/` on the Sagehen cluster. Design a complete 3-2-1 backup plan for your `gocryptfs.conf` and password. Your plan must address:
 
 1. Where will each of your 3 copies of `gocryptfs.conf` be stored?
 2. What 2 different media types will you use?
@@ -304,9 +308,9 @@ You are a researcher working with HIPAA-regulated patient interview transcripts 
 
 **Copy 1 — On-cluster (`/rhome`):**
 ```bash
-cp /bigdata/neurolab/interviews_cipher/gocryptfs.conf \
-   /rhome/myusername/backup/gocryptfs_interviews.conf.backup
-chmod 600 /rhome/myusername/backup/gocryptfs_interviews.conf.backup
+cp /bigdata/lab/neurolab/interviews_cipher/gocryptfs.conf \
+   /rhome/<myusername>/backup/gocryptfs_interviews.conf.backup
+chmod 600 /rhome/<myusername>/backup/gocryptfs_interviews.conf.backup
 ```
 Media type: Network-attached storage (BeeGFS). Accessible from any Sagehen login node.
 
@@ -322,12 +326,12 @@ Store the password in Bitwarden as a separate entry (not alongside the `gocryptf
 **Quarterly verification:**
 ```bash
 # Copy backup to a test location and attempt to mount
-mkdir -p /tmp/test_mount
-cp /rhome/myusername/backup/gocryptfs_interviews.conf.backup /tmp/test_cipher/gocryptfs.conf
-gocryptfs /tmp/test_cipher /tmp/test_mount
+mkdir -p /scratch/$USER/test_mount
+cp /rhome/<myusername>/backup/gocryptfs_interviews.conf.backup /tmp/test_cipher/gocryptfs.conf
+gocryptfs /tmp/test_cipher /scratch/$USER/test_mount
 # Verify files are readable, then unmount and clean up
-fusermount -u /tmp/test_mount
-rm -rf /tmp/test_cipher /tmp/test_mount
+fusermount -u /scratch/$USER/test_mount
+rm -rf /tmp/test_cipher /scratch/$USER/test_mount
 ```
 Log the date of each successful test. HIPAA auditors may ask for evidence of backup verification.
 
@@ -344,3 +348,6 @@ Log the date of each successful test. HIPAA auditors may ask for evidence of bac
 - Use chmod 600 for backup files to ensure only owner can read them.
 - Never keep backups in insecure locations (sticky notes, unlocked drawers, email as text).
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

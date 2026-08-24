@@ -6,7 +6,7 @@ exercises: 10
 
 :::::::::::::::::::::::::::::::::::::: questions
 - What is AES-256-GCM and why is it secure?
-- How does Argon2 prevent brute-force attacks on your password?
+- How does scrypt key derivation prevent brute-force attacks on your password?
 - How does gocryptfs.conf store the encryption key?
 - What is the performance impact of encryption?
 - Why is gocryptfs better than alternatives?
@@ -15,7 +15,7 @@ exercises: 10
 
 ::::::::::::::::::::::::::::::::::::: objectives
 - Understand AES-256-GCM encryption with analogy and technical detail
-- Learn Argon2 key derivation and why it matters for security
+- Learn scrypt key derivation and why it matters for security
 - Understand gocryptfs.conf and its critical importance
 - Understand file-level vs. block-level encryption trade-offs
 - Understand filename encryption and metadata protection
@@ -34,27 +34,27 @@ exercises: 10
 
 **Bottom line**: AES-256-GCM is unbreakable with current technology and won't be broken in your lifetime. Modern CPUs have AES-NI hardware instructions, making encryption virtually free in terms of performance.
 
-## Key Derivation: Argon2
+## Key Derivation: scrypt
 
-Your password is NOT the encryption key. gocryptfs uses **Argon2**, a memory-hard key derivation function that converts your password into a cryptographic key.
+Your password is NOT the encryption key. gocryptfs uses **scrypt**, a memory-hard key derivation function that converts your password into a cryptographic key (you can see its parameters -- N, R, P, and the salt -- in the `ScryptObject` section of gocryptfs.conf).
 
-**Why memory-hard?** Argon2 uses CPU, memory, and time resources—making it slow for attackers to guess passwords. GPU and ASIC attackers can't parallelize efficiently because they can't fit many copies in GPU memory. Result: deriving a key takes 1-2 seconds on your machine, but an attacker trying to crack a password waits 1-2 seconds per guess—reducing attack speed from billions of guesses/second to just one. A weak 8-character password with Argon2 is safer than the same password used directly as a key.
+**Why memory-hard?** scrypt uses CPU, memory, and time resources—making it slow for attackers to guess passwords. GPU and ASIC attackers can't parallelize efficiently because they can't fit many copies in GPU memory. Result: deriving a key takes 1-2 seconds on your machine, but an attacker trying to crack a password waits 1-2 seconds per guess—reducing attack speed from billions of guesses/second to just one. A weak 8-character password run through scrypt is safer than the same password used directly as a key -- though you should still use a strong 14+ character passphrase.
 
 ## gocryptfs.conf: Critical Configuration File
 
 When you initialize gocryptfs, it creates **gocryptfs.conf**—a JSON file containing:
-- **EncryptionKey**: Your encrypted master key (encrypted with your passphrase via Argon2)
+- **EncryptionKey**: Your encrypted master key (encrypted with a key derived from your passphrase via scrypt)
 - **ScryptObject**: Key derivation parameters (N, R, P, Salt)
 
-**Why it's irreplaceable**: gocryptfs.conf holds the encrypted master key. Your passphrase + Argon2 derives a key to decrypt it. If you lose this file, data is permanently unrecoverable—even with the correct passphrase. The connection between your passphrase and the master key is gone.
+**Why it's irreplaceable**: gocryptfs.conf holds the encrypted master key. Your passphrase + scrypt derives a key to decrypt it. If you lose this file, data is permanently unrecoverable—even with the correct passphrase. The connection between your passphrase and the master key is gone.
 
 **This is a feature, not a bug.** If your system is compromised, attackers cannot recover the master key without your passphrase. But YOU must back it up immediately.
 
 **Backup procedure**:
 ```bash
 # Back up gocryptfs.conf to secure location
-cp /bigdata/group/mydata_cipher/gocryptfs.conf /rhome/myusername/backup/gocryptfs_mydata.backup
-chmod 600 /rhome/myusername/backup/gocryptfs_mydata.backup
+cp /bigdata/lab/<labname>/mydata_cipher/gocryptfs.conf /rhome/<myusername>/backup/gocryptfs_mydata.backup
+chmod 600 /rhome/<myusername>/backup/gocryptfs_mydata.backup
 ```
 
 Losing gocryptfs.conf = losing all data. There is no recovery, no matter how strong your password is.
@@ -66,10 +66,10 @@ Before accessing your encrypted directory for any real work, back up gocryptfs.c
 
 ```bash
 # Backup to your home directory
-cp /bigdata/yourgroup/cipher/gocryptfs.conf ~/backup_gocryptfs_cipher.conf
+cp /bigdata/lab/<labname>/cipher/gocryptfs.conf ~/backup_gocryptfs_cipher.conf
 
 # Or to external drive
-cp /bigdata/yourgroup/cipher/gocryptfs.conf /path/to/external/backup/
+cp /bigdata/lab/<labname>/cipher/gocryptfs.conf /path/to/external/backup/
 ```
 
 Losing this file means losing all encrypted data permanently, even if you remember your passphrase. There is no recovery. Back it up now, before you begin any actual work with encrypted data. Backup is not optional.
@@ -136,10 +136,10 @@ gocryptfs is optimal because it's:
 
 When you use gocryptfs:
 1. **Initialize**: `gocryptfs --init /cipher` → creates gocryptfs.conf, generates master key, prompts for passphrase
-2. **Mount**: `gocryptfs /cipher /plain` → derives key from passphrase, verifies master key, mounts FUSE filesystem
+2. **Mount**: `gocryptfs /bigdata/lab/<labname>/cipher /scratch/$USER/plain` → derives key from passphrase, verifies master key, mounts FUSE filesystem
 3. **Write**: Data flows plaintext → FUSE → gocryptfs → AES-256-GCM → encrypted disk storage
 4. **Read**: Data flows encrypted disk → AES-256-GCM → gocryptfs → FUSE → plaintext to your command
-5. **Unmount**: `fusermount -u /plain` → plain directory becomes empty, encrypted data remains on disk
+5. **Unmount**: `fusermount -u /scratch/$USER/plain` → the plain view vanishes, encrypted data remains on disk
 
 ::::::::::::::::::::::::::::::::::::: challenge
 
@@ -148,7 +148,7 @@ When you use gocryptfs:
 Match each concept to its role. For each, explain in 1-2 sentences.
 
 1. **AES-256-GCM** ← What is this component?
-2. **Argon2** ← What is this component?
+2. **scrypt** ← What is this component?
 3. **gocryptfs.conf** ← What is this component?
 4. **Cipher directory** ← What is this component?
 5. **Plain directory** ← What is this component?
@@ -163,12 +163,12 @@ Match each concept to its role. For each, explain in 1-2 sentences.
 :::::::::::::::::::::::::::::::::::: solution
 
 1. **AES-256-GCM** ← B. Symmetric encryption algorithm providing confidentiality and authenticity
-2. **Argon2** ← C. Key derivation function that converts your passphrase into a cryptographic key
+2. **scrypt** ← C. Key derivation function that converts your passphrase into a cryptographic key
 3. **gocryptfs.conf** ← A. Configuration file containing encrypted master key and key derivation parameters
 4. **Cipher directory** ← E. On-disk encrypted storage containing encrypted files with encrypted names
 5. **Plain directory** ← F. In-memory decrypted view of files that appears when cipher directory is mounted
 
-**Explanation**: gocryptfs uses AES-256-GCM (B) to encrypt/decrypt file contents, uses Argon2 (C) to derive encryption keys from your passphrase, stores metadata in gocryptfs.conf (A), and maintains encrypted data on disk (E) while presenting a decrypted view in memory (F).
+**Explanation**: gocryptfs uses AES-256-GCM (B) to encrypt/decrypt file contents, uses scrypt (C) to derive encryption keys from your passphrase, stores metadata in gocryptfs.conf (A), and maintains encrypted data on disk (E) while presenting a decrypted view in memory (F).
 
 :::::::::::::::::::::::::::::::::
 
@@ -180,7 +180,7 @@ Match each concept to its role. For each, explain in 1-2 sentences.
 
 For your research project, identify what gocryptfs protects against and what it doesn't:
 
-**Your scenario**: You're a CS student working on a capstone project with a local tech company. The company has provided you with proprietary source code and design documents under an NDA. You store this on Sagehen in `/bigdata/capstone/encrypted` using gocryptfs. Your Sagehen account is accessed via SSH from your laptop.
+**Your scenario**: You're a CS student working on a capstone project with a local tech company. The company has provided you with proprietary source code and design documents under an NDA. You store this on Sagehen in `/bigdata/lab/capstone/encrypted` using gocryptfs. Your Sagehen account is accessed via SSH from your laptop.
 
 **Questions**:
 1. **Disk theft**: If someone steals your laptop hard drive, can they read your encrypted capstone code?
@@ -241,7 +241,7 @@ For your research project, identify what gocryptfs protects against and what it 
 
 ::::::::::::::::::::::::::::::::::::: keypoints
 - AES-256-GCM is unbreakable: 2^256 possible keys, authenticated encryption, hardware-accelerated
-- Argon2 is memory-hard: slows down password cracking by making it time-consuming per guess
+- scrypt key derivation is memory-hard: slows down password cracking by making it time-consuming per guess
 - gocryptfs.conf is irreplaceable: losing it means losing all data, even with passphrase
 - File-level encryption (not block-level) is necessary for HPC shared storage (no admin required)
 - Filename encryption prevents information leakage even to users with filesystem access
@@ -251,3 +251,6 @@ For your research project, identify what gocryptfs protects against and what it 
 - gocryptfs DOES NOT protect against: active malware, SSH compromise with mount active, memory attacks, root access
 - Defense-in-depth: encryption + strong passphrases + SSH keys + MFA + safe practices
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

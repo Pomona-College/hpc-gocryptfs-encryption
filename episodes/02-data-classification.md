@@ -22,6 +22,8 @@ exercises: 5
 
 Pomona College ITS Policy 24 defines three data tiers. Understanding these is essential for knowing when encryption is required.
 
+![Pomona's three data classification tiers: encryption is optional for PUBLIC, recommended for PROPRIETARY, and mandatory for RESTRICTED.](fig/classification-tiers.png){alt='Three-column diagram of Pomona data classification tiers. Tier 1 PUBLIC, green, Unix permissions 755: published papers and datasets, open government data, public course materials; encryption not needed, no exposure risk, share freely. Tier 2 PROPRIETARY, orange, permissions 750: unpublished research data, draft manuscripts and code, pre-patent inventions; encryption recommended, exposure risks lost priority and competitive harm, lab members only. Tier 3 RESTRICTED, red, permissions 700 plus gocryptfs: student records under FERPA, health data under HIPAA, export-controlled work under EAR and ITAR; encryption mandatory, exposure risks federal penalties and harm to research subjects.'}
+
 ### Tier 1: PUBLIC Data (Green, Unix permissions 755)
 
 **What it includes**:

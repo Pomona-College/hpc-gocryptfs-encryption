@@ -33,7 +33,7 @@ Your lab is conducting behavioral research on mice with IACUC approval. Your dat
 
 **Why**: IACUC approval is conditional on data security; loss of approval halts all animal research
 
-**Storage**: Create `/bigdata/iacuc-behavior/encrypted` with gocryptfs
+**Storage**: Create `/bigdata/lab/iacuc-behavior/encrypted` with gocryptfs
 
 **Passphrase**: 14+ characters (NIST SP 800-63B); 20+ recommended for long-term keys. Not shared with lab members (only you hold the key)
 
@@ -53,7 +53,7 @@ You're conducting a longitudinal study of student financial aid and academic suc
 
 **Why**: FERPA violation penalties apply; students' privacy is at stake
 
-**Storage**: Create `/bigdata/econ-financial-study/encrypted` with gocryptfs
+**Storage**: Create `/bigdata/lab/econ-financial-study/encrypted` with gocryptfs
 
 **Key backup**: Store passphrase in your personal secure password manager; back up gocryptfs.conf to separate location
 
@@ -73,7 +73,7 @@ Your lab synthesizes advanced materials for energy applications. The synthesis p
 
 **Why**: EAR deemed export rule; sharing with foreign nationals is controlled
 
-**Storage**: Create `/bigdata/materials-synthesis/encrypted` with gocryptfs
+**Storage**: Create `/bigdata/lab/materials-synthesis/encrypted` with gocryptfs
 
 **Access control**: Only authorize U.S. citizens and permanent residents; do not mount directory if visiting researchers with visa access are present
 
@@ -93,7 +93,7 @@ You're working on software development under a research contract with a tech com
 
 **Why**: NDA breach can trigger legal action by company
 
-**Storage**: Create `/bigdata/company-project/encrypted` with gocryptfs
+**Storage**: Create `/bigdata/lab/company-project/encrypted` with gocryptfs
 
 **Passphrase**: Treat as company confidential; don't use a password you share elsewhere
 

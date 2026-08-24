@@ -22,49 +22,53 @@ exercises: 5
 
 When working with encrypted data in SLURM jobs, you have two main strategies. The choice depends on your workflow type, job duration, and security requirements.
 
-### Approach 1: Pre-mount in Terminal (Best for Interactive & Short Jobs)
+### Approach 1: Mount in an Interactive Compute Session (Best for Exploratory Work)
 
-Mount your encrypted directory in an interactive session before submitting jobs:
+Start an interactive session on a compute node, mount there, and do your work
+inside that same session:
 
 ```bash
-gocryptfs /bigdata/group/secret_cipher /bigdata/group/secret_plain
+# Get an interactive shell on a compute node
+srun --partition=short --time=01:00:00 --cpus-per-task=4 --mem=8G --pty bash
+
+# Create the node-local mountpoint and mount
+mkdir -p /scratch/$USER/secret_plain
+gocryptfs /bigdata/lab/<labname>/secret_cipher /scratch/$USER/secret_plain
 # Password: [enter password interactively]
-# Keep terminal open or background with nohup
+
+# Work directly in this session
+python3 analysis.py /scratch/$USER/secret_plain/data.csv
+
+# Unmount before you exit
+fusermount -u /scratch/$USER/secret_plain
+exit
 ```
 
-Then submit your job:
+::::::::::::::::::::::::::::::::::::::: callout
 
-```bash
-sbatch analysis.sh
-```
+## Why Not Mount First, Then sbatch?
 
-Job script accesses the mounted plain directory normally:
+A FUSE mount exists only on the node where you created it. A separately
+submitted `sbatch` job will usually land on a *different* node, where your
+mount doesn't exist. So a pre-created mount only serves work you run **inside
+that same interactive session**. Any batch job must mount for itself
+(Approach 2).
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=quick_analysis
-#SBATCH --time=00:30:00
+:::::::::::::::::::::::::::::::::::::::::::::::
 
-python3 analysis.py /bigdata/group/secret_plain/data.csv
-```
-
-**When to use pre-mount:**
+**When to use an interactive-session mount:**
 - Interactive analysis where you need frequent access
-- Short jobs (< 1 hour)
 - Debugging encrypted data workflows
-- Ad-hoc analysis where job script stability is less critical
-- When the same encryption mount serves multiple jobs
+- Ad-hoc exploration before writing a production script
 
 **Pros**:
-- Simple job script (no password exposure)
-- Flexible: can access decrypted data across multiple job submissions
-- Good for exploratory work
+- Interactive: type commands, inspect files, iterate
+- Password entered interactively (no password file needed)
 
 **Cons**:
-- Manual mounting step before job submission
-- Must keep terminal/session open or use nohup
-- If connection drops, mount may be lost
-- Not reproducible: depends on external state
+- Must stay connected; the mount dies with your session
+- Work is limited to that one node and session
+- Not reproducible: depends on manual steps
 
 ### Approach 2: Mount in Job Script (Best for Production & Overnight Jobs)
 
@@ -75,23 +79,24 @@ Mount encrypted directories within the job script itself. This is self-contained
 #SBATCH --job-name=secure_analysis
 #SBATCH --time=02:00:00
 
-CIPHER=/bigdata/group/secret_cipher
-PLAIN=/bigdata/group/secret_plain
+CIPHER=/bigdata/lab/<labname>/secret_cipher
+PLAIN=/scratch/$USER/secret_plain   # node-local mountpoint
 
-# Create mount point
-mkdir -p $PLAIN
+# Create mount point (scratch is cleaned between jobs)
+mkdir -p "$PLAIN"
 
-# Mount encrypted directory
-echo "password" | gocryptfs $CIPHER $PLAIN -
+# Mount using a protected password file (see the password-handling
+# comparison below -- never embed the password in the script itself)
+gocryptfs --passfile ~/.gocryptfs_pass "$CIPHER" "$PLAIN"
 
 # Do work
-python3 analysis.py $PLAIN/data.csv
+python3 analysis.py "$PLAIN"/data.csv
 
 # Unmount
-fusermount -u $PLAIN
+fusermount -u "$PLAIN"
 
 # Cleanup
-rmdir $PLAIN
+rmdir "$PLAIN"
 ```
 
 **When to use mount-in-script:**
@@ -287,10 +292,10 @@ For each scenario, decide: should you pre-mount or mount-in-script? Why?
 - Good for exploratory debugging work
 
 **Steps:**
-1. In terminal: `gocryptfs /bigdata/group/data_cipher /bigdata/group/data_plain`
+1. In terminal: `gocryptfs /bigdata/lab/<labname>/data_cipher /scratch/$USER/data_plain`
 2. Keep terminal open
-3. Submit 15 jobs that all read from `/bigdata/group/data_plain`
-4. After debugging complete, unmount: `fusermount -u /bigdata/group/data_plain`
+3. Submit 15 jobs that all read from `/scratch/$USER/data_plain`
+4. After debugging complete, unmount: `fusermount -u /scratch/$USER/data_plain`
 
 **Scenario 2 Answer: Mount-in-script**
 
@@ -345,3 +350,6 @@ For each workflow scenario, decide whether **pre-mount** or **mount-in-script** 
 - Understand your workflow type before choosing approach
 - Reproducibility and cleanup are key for production jobs
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

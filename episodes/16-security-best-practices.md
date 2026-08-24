@@ -51,7 +51,7 @@ Password visible in git history forever, former employees gain permanent access.
 Backups silently become corrupted, discover failure only during disaster. Prevention: Test quarterly—takes 10 minutes. Copy backup to test location, mount with password, verify files readable, clean up. Log success date.
 
 **Mistake 6: Inconsistent directory permissions**
-Plain directory (chmod 755) readable by lab mates even if cipher is protected. Prevention: Both cipher and plain must be chmod 700. Check quarterly: `ls -ld /bigdata/group/*` should show drwx------ for both.
+Plain directory (chmod 755) readable by lab mates even if cipher is protected. Prevention: Both cipher and plain must be chmod 700. Check quarterly: `ls -ld /bigdata/lab/<labname>/*` should show drwx------ for both.
 
 ## Troubleshooting Guide: Systematic Diagnosis
 
@@ -59,15 +59,15 @@ Use this table to diagnose gocryptfs problems systematically. Read down the "Sym
 
 | Symptom | Likely Cause | Solution |
 |---------|-------------|----------|
-| **"Mount failed: cipher dir not found"** | Incorrect path or directory doesn't exist | Verify path exists: `ls /bigdata/group/secret_cipher`. Use absolute paths (starting with /). Check for typos. |
+| **"Mount failed: cipher dir not found"** | Incorrect path or directory doesn't exist | Verify path exists: `ls /bigdata/lab/<labname>/secret_cipher`. Use absolute paths (starting with /). Check for typos. |
 | **"Wrong password" (when password is correct)** | Data corruption or incorrect backup used | Don't panic. Try mounting from gocryptfs.conf in a different location. If it fails, data may be corrupted. Contact its-hpc@pomona.edu with: full error message, the cipher directory path, and when the problem started. |
 | **"Decryption failed / Cannot read directory"** | Data corruption in cipher directory | Stop immediately. Do not attempt to modify or delete cipher files. Contact storage team about recovery options. Provide error message and backup info. |
-| **"FUSE not available" or "fusermount: command not found"** | FUSE module not loaded or not installed | Load module: `module load fuse`. If that fails, contact its-hpc@pomona.edu for system installation. |
-| **"Transport endpoint is not connected"** | Stale FUSE mount from crashed process (most confusing error!) | This means a previous mount process crashed, leaving FUSE in a broken state. Fix: `fusermount -u -z /bigdata/group/secret_plain` (force unmount), then remount normally. |
-| **"Address already in use"** | Another process has same mount point | Check if directory is mounted: `mount \| grep secret_plain`. If mounted, unmount: `fusermount -u /bigdata/group/secret_plain`. If stuck, use force: `fusermount -u -z /bigdata/group/secret_plain`. |
-| **"Permission denied"** | User doesn't own cipher directory, or permissions are too restrictive | Check ownership: `ls -ld /bigdata/group/secret_cipher`. Owner should be you. Check permissions: should be 700. Fix: `chmod 700 /bigdata/group/secret_cipher`. Contact its-hpc@pomona.edu if you don't own the directory. |
+| **"FUSE not available" or "fusermount: command not found"** | FUSE module not loaded or not installed | Ensure the gocryptfs module is loaded (`module load gocryptfs`); `fusermount` itself is part of the system FUSE installation. If it is still missing, contact its-hpc@pomona.edu. |
+| **"Transport endpoint is not connected"** | Stale FUSE mount from crashed process (most confusing error!) | This means a previous mount process crashed, leaving FUSE in a broken state. Fix: `fusermount -u -z /scratch/$USER/secret_plain` (force unmount), then remount normally. |
+| **"Address already in use"** | Another process has same mount point | Check if directory is mounted: `mount \| grep secret_plain`. If mounted, unmount: `fusermount -u /scratch/$USER/secret_plain`. If stuck, use force: `fusermount -u -z /scratch/$USER/secret_plain`. |
+| **"Permission denied"** | User doesn't own cipher directory, or permissions are too restrictive | Check ownership: `ls -ld /bigdata/lab/<labname>/secret_cipher`. Owner should be you. Check permissions: should be 700. Fix: `chmod 700 /bigdata/lab/<labname>/secret_cipher`. Contact its-hpc@pomona.edu if you don't own the directory. |
 | **"Out of memory" during mount or access** | Mounted directory has very many files (thousands), using significant RAM | Close other applications to free memory. For large directories, mount to a node with more available memory. Contact support for hardware options. Alternatively, split data into multiple smaller encrypted directories. |
-| **"Input/output error" when reading files** | Data corruption in plaintext layer (less common) | Stop accessing files immediately. Unmount: `fusermount -u /bigdata/group/secret_plain`. Contact storage team. Provide when error first appeared and what operations were in progress. |
+| **"Input/output error" when reading files** | Data corruption in plaintext layer (less common) | Stop accessing files immediately. Unmount: `fusermount -u /scratch/$USER/secret_plain`. Contact storage team. Provide when error first appeared and what operations were in progress. |
 
 ### Special Case: "Transport endpoint is not connected"
 
@@ -78,27 +78,27 @@ This is the most confusing gocryptfs error. It happens when a previous mount pro
 **Fix (in order)**:
 ```bash
 # Step 1: Try normal unmount first
-fusermount -u /bigdata/group/secret_plain
+fusermount -u /scratch/$USER/secret_plain
 
 # Step 2: If that doesn't work, force unmount
-fusermount -u -z /bigdata/group/secret_plain
+fusermount -u -z /scratch/$USER/secret_plain
 
 # Step 3: Verify it's unmounted (scripts: use `mountpoint -q` instead)
 mount | grep secret_plain  # Human inspection — should show nothing
 
 # Step 4: Remount normally
-gocryptfs /bigdata/group/secret_cipher /bigdata/group/secret_plain
+gocryptfs /bigdata/lab/<labname>/secret_cipher /scratch/$USER/secret_plain
 
 # Step 5: Verify it's mounted (scripts: use `mountpoint -q` instead)
 mount | grep secret_plain  # Human inspection — should show the mount
 
 # Step 6: Test access
-ls /bigdata/group/secret_plain  # Should work now
+ls /scratch/$USER/secret_plain  # Should work now
 ```
 
 **Prevention**: Use `trap` in your scripts to unmount on exit:
 ```bash
-trap "fusermount -u /bigdata/group/secret_plain" EXIT
+trap "fusermount -u /scratch/$USER/secret_plain" EXIT
 ```
 
 This ensures cleanup even if your script is interrupted.
@@ -115,7 +115,7 @@ Fastest performance strategy:
 
 ```bash
 mkdir -p /tmpfs/mydata_plain
-gocryptfs /bigdata/group/mydata_cipher /tmpfs/mydata_plain
+gocryptfs /bigdata/lab/<labname>/mydata_cipher /tmpfs/mydata_plain
 
 # All operations now use RAM instead of disk
 # Sequential read speed: ~8000 MB/s (RAM speed)
@@ -154,11 +154,11 @@ fusermount umount
 Do:
 ```bash
 # Mount once, access many times, unmount once
-gocryptfs /bigdata/group/full_cipher /tmp/work
-for file in /tmp/work/*.data; do
+gocryptfs /bigdata/lab/<labname>/full_cipher /scratch/$USER/work
+for file in /scratch/$USER/work/*.data; do
   process_file "$file"
 done
-fusermount -u /tmp/work
+fusermount -u /scratch/$USER/work
 ```
 
 **Benchmark Example**: Processing 1000 files
@@ -177,7 +177,7 @@ Strategy for computational workflows:
 ```bash
 #!/bin/bash
 # Set up
-CIPHER=/bigdata/group/large_dataset_cipher
+CIPHER=/bigdata/lab/<labname>/large_dataset_cipher
 PLAIN=/tmpfs/large_dataset_plain
 WORK=/scratch/job_${SLURM_JOB_ID}
 
@@ -221,7 +221,7 @@ Strategy: Only encrypt data that actually needs protection.
 # ✗ Don't encrypt: published datasets, code, documentation, 
 #   public input files, intermediate processing outputs
 
-/bigdata/group/
+/bigdata/lab/<labname>/
 ├── project_data_cipher/          # Restricted data: ENCRYPTED
 │   ├── patient_interviews/
 │   └── genomic_sequences/
@@ -263,7 +263,7 @@ gocryptfs -speed
 
 Dr. Chen is a new researcher on the Sagehen cluster working with FERPA-protected student survey data. Read through her workflow and identify **5 security mistakes**.
 
-> Dr. Chen created an encrypted directory at `/bigdata/chenlab/surveys_cipher/` and mounts it daily. She wrote her gocryptfs password on a sticky note attached to her monitor so she would not forget it. Her SLURM job script contains the line `echo "SurveyPass2024!" | gocryptfs /bigdata/chenlab/surveys_cipher /bigdata/chenlab/surveys_plain -` and she committed this script to the lab's GitHub repository. After her analysis jobs finish, she often leaves the mount active overnight because she plans to continue the next morning. She also keeps an unencrypted copy of the survey responses at `/bigdata/chenlab/backup/surveys_raw.csv` in case the encryption ever fails. She has never tested whether her `gocryptfs.conf` backup actually works.
+> Dr. Chen created an encrypted directory at `/bigdata/lab/chenlab/surveys_cipher/` and mounts it daily. She wrote her gocryptfs password on a sticky note attached to her monitor so she would not forget it. Her SLURM job script contains the line `echo "SurveyPass2024!" | gocryptfs /bigdata/lab/chenlab/surveys_cipher /scratch/$USER/surveys_plain -` and she committed this script to the lab's GitHub repository. After her analysis jobs finish, she often leaves the mount active overnight because she plans to continue the next morning. She also keeps an unencrypted copy of the survey responses at `/bigdata/lab/chenlab/backup/surveys_raw.csv` in case the encryption ever fails. She has never tested whether her `gocryptfs.conf` backup actually works.
 
 ::::::::::::::::::::::::::::::::::::: solution
 
@@ -292,3 +292,6 @@ Dr. Chen is a new researcher on the Sagehen cluster working with FERPA-protected
 - Troubleshoot systematically using the problem table; "transport endpoint not connected" is usually just a stale mount
 - Performance optimization focuses on smart mount placement (/tmpfs for temporary data) and batching operations
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

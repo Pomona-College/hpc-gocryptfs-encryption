@@ -8,13 +8,37 @@ This workshop teaches researchers how to encrypt sensitive data using gocryptfs 
 
 ## Episodes
 
-1. **Why Encrypt Your Research Data**: Understand when encryption is legally required, what gocryptfs protects and does not protect, and the tradeoffs between security and performance.
-2. **gocryptfs Overview and Architecture**: Learn how gocryptfs works, the role of FUSE (Filesystem in Userspace), AES-256-GCM encryption, and the cipher/plain directory model.
-3. **Creating Encrypted Directories**: Set up encrypted directories on Sagehen, initialize gocryptfs volumes, and manage encryption keys securely.
-4. **Mounting and Unmounting**: Learn proper mounting and unmounting procedures, including how to handle sessions and prevent accidental data access.
-5. **SLURM Integration**: Integrate encrypted directories into SLURM job scripts, mount encrypted data within batch jobs, and manage encryption in automated workflows.
-6. **Key Management**: Manage encryption keys safely, use password best practices, create backups, and handle key recovery scenarios.
-7. **Best Practices for Encrypted Research Data**: Follow guidelines for secure data handling, access controls, and integrating encryption into research workflows.
+**Section 1 — Why Encrypt? (1–3)**
+
+1. **Regulatory Landscape**: When encryption is legally required (FERPA, HIPAA, EAR) and what's at stake
+2. **Data Classification**: Pomona's three tiers — PUBLIC (755), PROPRIETARY (750), RESTRICTED (700 + gocryptfs)
+3. **Scenarios and Responsibilities**: Real research scenarios and who is responsible for what
+
+**Section 2 — How gocryptfs Works (4–5)**
+
+4. **gocryptfs Architecture**: The two-directory model, FUSE, and why gocryptfs beats alternatives
+5. **Encryption Internals**: AES-256-GCM, scrypt key derivation, and gocryptfs.conf
+
+**Section 3 — Hands-On Encryption (6–9)**
+
+6. **Planning Directories**: Naming, placement, and password choices before you initialize
+7. **Creating Encrypted Directories**: `gocryptfs -init` and verifying your setup
+8. **Mounting Workflow**: Daily mount/unmount habits
+9. **Non-Interactive Mounting**: `--extpass`, `--passfile`, and troubleshooting
+
+**Section 4 — SLURM Integration (10–12)**
+
+10. **Decision Framework**: When jobs need encrypted data mounted (and when they don't)
+11. **Script Templates**: Mount-compute-unmount patterns for batch jobs
+12. **Advanced Patterns**: GPU jobs, job arrays, and robust error handling
+
+**Section 5 — Key Management and Maintenance (13–17)**
+
+13. **Key Backup**: gocryptfs.conf, the 3-2-1 rule, and backup locations
+14. **Password Management**: Choosing, storing, and changing passphrases
+15. **Lab Management**: Team access, offboarding, and disaster recovery
+16. **Security Best Practices**: Permissions, hygiene, and troubleshooting
+17. **Verification and Maintenance**: Routine checks and recovery drills
 
 ## Prerequisites
 

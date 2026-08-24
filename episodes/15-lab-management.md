@@ -37,10 +37,10 @@ When a lab member with encryption access departs, follow this sequence:
 # New member tests access before departure
 
 # Step 2: Change password
-gocryptfs -passwd /bigdata/group/patient_data_cipher/
+gocryptfs -passwd /bigdata/lab/<labname>/patient_data_cipher/
 
 # Step 3: Back up new gocryptfs.conf
-cp /bigdata/group/patient_data_cipher/gocryptfs.conf \
+cp /bigdata/lab/<labname>/patient_data_cipher/gocryptfs.conf \
    ~/backup/gocryptfs_patient_data.conf
 
 # Step 4: Store backup (use 3-2-1 rule: 3 copies, 2 media types, 1 offsite)
@@ -71,7 +71,7 @@ BACKUP_DIR="${HOME}/backup/gocryptfs_keys"
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
 
-CIPHER_DIRS=("/bigdata/group/patient_study_a_cipher" "/bigdata/group/patient_study_b_cipher")
+CIPHER_DIRS=("/bigdata/lab/<labname>/patient_study_a_cipher" "/bigdata/lab/<labname>/patient_study_b_cipher")
 
 for CIPHER_DIR in "${CIPHER_DIRS[@]}"; do
     CONF_FILE="${CIPHER_DIR}/gocryptfs.conf"
@@ -81,7 +81,7 @@ done
 find "$BACKUP_DIR" -name "gocryptfs_*.conf" -mtime +180 -delete  # Clean old backups
 ```
 
-**Add to cron**: `0 9 1 * * /home/username/backup_gocryptfs.sh` (monthly, first day 9 AM)
+**Add to cron**: `0 9 1 * * /rhome/<myusername>/backup_gocryptfs.sh` (monthly, first day 9 AM)
 
 ## Disaster Recovery Scenarios
 
@@ -103,7 +103,7 @@ find "$BACKUP_DIR" -name "gocryptfs_*.conf" -mtime +180 -delete  # Clean old bac
 
 **HPC Help Desk** (its-hpc@pomona.edu): Mount issues, system resources, /bigdata backups
 **IT Security** (security@pomona.edu): Password compromise, data breach
-**Disaster Recovery** (dr@pomona.edu): Complete /bigdata failure (24-72hr response)
+**Disaster Recovery** (via its-hpc@pomona.edu): Complete /bigdata failure (24-72hr response)
 
 ## Compliance and Audit Requirements
 
@@ -119,7 +119,7 @@ Create lab compliance document listing each encrypted directory with path, conte
 
 ## Challenge 1: Implement Complete Backup Strategy
 
-**Scenario**: You have `/bigdata/group/confidential_results_cipher/` containing HIPAA PHI (cannot be lost).
+**Scenario**: You have `/bigdata/lab/<labname>/confidential_results_cipher/` containing HIPAA PHI (cannot be lost).
 
 **Your task**:
 1. Create backup directory in `/rhome/` with permissions 700
@@ -142,22 +142,22 @@ Create lab compliance document listing each encrypted directory with path, conte
 mkdir -p ~/backup/gocryptfs_keys && chmod 700 ~/backup/gocryptfs_keys
 
 # Back up gocryptfs.conf (two copies)
-cp /bigdata/group/confidential_results_cipher/gocryptfs.conf \
+cp /bigdata/lab/<labname>/confidential_results_cipher/gocryptfs.conf \
    ~/backup/gocryptfs_keys/gocryptfs_confidential_results.conf
 chmod 600 ~/backup/gocryptfs_keys/gocryptfs_confidential_results.conf
 cp ~/backup/gocryptfs_keys/gocryptfs_confidential_results.conf \
    ~/backup/gocryptfs_keys/gocryptfs_confidential_results_$(date +%Y-%m-%d).conf
 
 # Test restoration: mount original and backup
-mkdir -p /tmp/test_original /tmp/test_backup
-echo "[password]" | gocryptfs /bigdata/group/confidential_results_cipher /tmp/test_original -
-ls /tmp/test_original  # Verify decrypted files
+mkdir -p /scratch/$USER/test_original /scratch/$USER/test_backup
+gocryptfs --passfile ~/.gocryptfs_pass /bigdata/lab/<labname>/confidential_results_cipher /scratch/$USER/test_original
+ls /scratch/$USER/test_original  # Verify decrypted files
 
 # Mount from backup copy
 mkdir -p /tmp/test_cipher && cp ~/backup/gocryptfs_keys/gocryptfs_confidential_results.conf /tmp/test_cipher/gocryptfs.conf
-echo "[password]" | gocryptfs /tmp/test_cipher /tmp/test_backup -
-diff <(ls /tmp/test_original) <(ls /tmp/test_backup)  # Should match
-fusermount -u /tmp/test_original /tmp/test_backup
+echo "[password]" | gocryptfs /tmp/test_cipher /scratch/$USER/test_backup -
+diff <(ls /scratch/$USER/test_original) <(ls /scratch/$USER/test_backup)  # Should match
+fusermount -u /scratch/$USER/test_original /scratch/$USER/test_backup
 
 # Store password securely
 echo "[password]" > ~/.gocryptfs_pw && chmod 600 ~/.gocryptfs_pw
@@ -166,7 +166,7 @@ echo "[password]" > ~/.gocryptfs_pw && chmod 600 ~/.gocryptfs_pw
 cat > ~/Documents/encrypted_inventory.txt << 'EOF'
 ENCRYPTED DIRECTORY INVENTORY | Created: 2024-04-09
 Directory: Confidential Results
-Path: /bigdata/group/confidential_results_cipher/
+Path: /bigdata/lab/<labname>/confidential_results_cipher/
 Contents: Patient outcome data (95 subjects)
 Password: ~/.gocryptfs_pw (chmod 600), Bitwarden
 Backups (3-2-1): /rhome/backup/ (Copy 1), USB home safe (Copy 2), Bitwarden cloud (Copy 3)
@@ -201,7 +201,7 @@ LAB ENCRYPTION KEY MANAGEMENT INVENTORY
 Lab: Smith Neuroscience Lab | Last Updated: 2024-04-09
 
 DIRECTORY 1: PATIENT STUDY A
-Path: /bigdata/group/patient_study_a_cipher/
+Path: /bigdata/lab/<labname>/patient_study_a_cipher/
 Contents: fMRI brain imaging (500 subjects, 2500 files)
 Access: PI (owner), 2 postdocs (read-only)
 Password: Bitwarden "gocryptfs patient_a" (24 chars, annual rotation)
@@ -210,7 +210,7 @@ Compliance: HIPAA PHI, IRB #12345 (expires 2025-12-31), 10-year retention
 Last tested: 2024-04-08
 
 DIRECTORY 2: PATIENT STUDY B
-Path: /bigdata/group/patient_study_b_cipher/
+Path: /bigdata/lab/<labname>/patient_study_b_cipher/
 Contents: Clinical outcomes (300 subjects, 450 files)
 Access: PI (owner+write), 1 postdoc (write), 1 student (read)
 Password: Bitwarden "gocryptfs patient_b" (20 chars)
@@ -218,7 +218,7 @@ Backups: /rhome/backup/, USB, Bitwarden
 Compliance: HIPAA, IRB #12346, 10-year retention
 
 DIRECTORY 3: CONFIDENTIAL RECORDS
-Path: /bigdata/group/confidential_records_cipher/
+Path: /bigdata/lab/<labname>/confidential_records_cipher/
 Contents: Financial records, grants, personnel (1200 files)
 Access: PI (owner only), Dept Chair (by authorization)
 Password: 1Password "gocryptfs confidential" (28 chars, higher security)
@@ -226,7 +226,7 @@ Backups: /rhome/backup/, separate USB (security segregation), 1Password
 Compliance: Restricted/confidential, Finance audit required
 
 DIRECTORY 4: COLLABORATION PARTNER
-Path: /bigdata/group/collaboration_partner_cipher/
+Path: /bigdata/lab/<labname>/collaboration_partner_cipher/
 Contents: External partner data (320 MB, 156 files)
 Access: PI, postdoc, Dr. Jane Collaborator (UC Berkeley)
 Password: Bitwarden (20 chars, shared in-person, never email)
@@ -255,8 +255,8 @@ Sealed Document: Pomona Bank Deposit Box #2847
 DISASTER RECOVERY CONTACTS
 HPC Help Desk (its-hpc@pomona.edu): System resources, permissions, backups
 IT Security (security@pomona.edu): Password compromise, data breach
-Disaster Recovery (dr@pomona.edu): /bigdata failure (24-72hr response)
-Compliance (research-compliance@pomona.edu): IRB implications
+Disaster Recovery (via its-hpc@pomona.edu): /bigdata failure (24-72hr response)
+Compliance (via its-hpc@pomona.edu, who will route to the IRB/compliance office): IRB implications
 Partner Lab (j.collab@berkeley.edu): Shared data issues
 
 ANNUAL AUDIT CHECKLIST (Next: 2025-04-09)
@@ -285,3 +285,6 @@ Reviewed: ________________ Date: ________ (Dept Chair, annually)
 - Review encryption management and inventory annually with department leadership.
 - Never store passwords unencrypted; use password manager or sealed physical safe only.
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>

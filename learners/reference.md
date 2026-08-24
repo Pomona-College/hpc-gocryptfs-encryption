@@ -20,30 +20,30 @@ If you're in a hurry, here's the 2-minute version:
 module load gocryptfs
 
 # 2. Create directories (first time only)
-mkdir -p /bigdata/labname/sensitive_cipher
-mkdir -p /tmp/sensitive_plain
+mkdir -p /bigdata/lab/<labname>/sensitive_cipher
+mkdir -p /scratch/$USER/sensitive_plain
 
 # 3. Initialize vault (first time only, creates gocryptfs.conf)
-gocryptfs -init /bigdata/labname/sensitive_cipher
+gocryptfs -init /bigdata/lab/<labname>/sensitive_cipher
 # Enter password twice
 
 # 4. Mount vault (whenever you need it)
-gocryptfs /bigdata/labname/sensitive_cipher /tmp/sensitive_plain
+gocryptfs /bigdata/lab/<labname>/sensitive_cipher /scratch/$USER/sensitive_plain
 # Enter password once
 
-# 5. Work with files in /tmp/sensitive_plain/
-cp mydata.csv /tmp/sensitive_plain/
-python analyze.py < /tmp/sensitive_plain/mydata.csv
+# 5. Work with files in /scratch/$USER/sensitive_plain/
+cp mydata.csv /scratch/$USER/sensitive_plain/
+python analyze.py < /scratch/$USER/sensitive_plain/mydata.csv
 
 # 6. Unmount when done (FILES WILL BE ENCRYPTED AGAIN)
-fusermount -u /tmp/sensitive_plain
+fusermount -u /scratch/$USER/sensitive_plain
 
 # 7. Verify unmounted
-ls /tmp/sensitive_plain
+ls /scratch/$USER/sensitive_plain
 # Should be empty
 ```
 
-That's it! Your data in /bigdata/labname/sensitive_cipher is now encrypted.
+That's it! Your data in `/bigdata/lab/<labname>/sensitive_cipher` is now encrypted.
 
 ---
 
@@ -59,7 +59,7 @@ START: Does your data contain personal identifiers or sensitive information?
 │   └─→ Classification: PUBLIC (green)
 │       Encryption: Optional (not required)
 │       Permissions: 755 (world readable)
-│       Location: /bigdata/labname/public_data/
+│       Location: /bigdata/lab/<labname>/public_data/
 │       Example: Published journal articles, open-source code
 │
 └─→ YES (identifiers, sensitive info present)
@@ -85,20 +85,20 @@ START: Does your data contain personal identifiers or sensitive information?
     │   │   Classification: PROPRIETARY (orange)
     │   │   Encryption: RECOMMENDED
     │   │   Permissions: 750 (group only)
-    │   │   Location: /bigdata/labname/research_2026_cipher/
+    │   │   Location: /bigdata/lab/<labname>/research_2026_cipher/
     │   │   Examples: Pre-publication data, novel algorithms, methods
     │   │
     │   └─→ NO (general lab data, low-risk)
     │       Classification: PROPRIETARY (orange)
     │       Encryption: Optional but recommended
     │       Permissions: 750 (group only)
-    │       Location: /bigdata/labname/lab_data_cipher/ (if encrypted)
+    │       Location: /bigdata/lab/<labname>/lab_data_cipher/ (if encrypted)
     │
     └─→ STOP: RESTRICTED data found
         Classification: RESTRICTED (red)
         Encryption: MANDATORY (non-negotiable)
         Permissions: 700+gocryptfs (owner only, encrypted)
-        Location: /bigdata/labname/[dataset]_cipher/
+        Location: /bigdata/lab/<labname>/[dataset]_cipher/
         Examples: HIPAA, FERPA, genetic, IRB-protected
         
         ⚠️ YOU MUST ENCRYPT THIS DATA.
@@ -140,8 +140,8 @@ gocryptfs -init /path/to/encrypted_cipher
 # 3. Initializes encryption structure (RootNode, IV, etc.)
 
 # Example:
-mkdir -p /bigdata/mylab/restricted_data_cipher
-gocryptfs -init /bigdata/mylab/restricted_data_cipher
+mkdir -p /bigdata/lab/<labname>/restricted_data_cipher
+gocryptfs -init /bigdata/lab/<labname>/restricted_data_cipher
 
 # Console output:
 # Choose a password for protecting your files.
@@ -172,7 +172,7 @@ gocryptfs -init /bigdata/mylab/restricted_data_cipher
 gocryptfs /path/to/encrypted_cipher /mount/point
 
 # Full example:
-gocryptfs /bigdata/mylab/restricted_data_cipher /tmp/restricted_plain
+gocryptfs /bigdata/lab/<labname>/restricted_data_cipher /scratch/$USER/restricted_plain
 
 # Console interaction:
 # Password: [type your password]
@@ -188,10 +188,10 @@ gocryptfs /bigdata/mylab/restricted_data_cipher /tmp/restricted_plain
 
 # Verify mount succeeded:
 mount | grep gocryptfs
-# Output: /bigdata/mylab/restricted_data_cipher on /tmp/restricted_plain type fuse.gocryptfs
+# Output: /bigdata/lab/<labname>/restricted_data_cipher on /scratch/$USER/restricted_plain type fuse.gocryptfs
 
 # Or:
-ls /tmp/restricted_plain
+ls /scratch/$USER/restricted_plain
 # Shows your files (in plain text now)
 ```
 
@@ -210,7 +210,7 @@ ls /tmp/restricted_plain
 fusermount -u /mount/point
 
 # Full example:
-fusermount -u /tmp/restricted_plain
+fusermount -u /scratch/$USER/restricted_plain
 
 # Console output:
 # (usually none, or "Unmounting..." message)
@@ -220,11 +220,11 @@ mount | grep gocryptfs
 # Should show nothing (no gocryptfs mounts)
 
 # Or check the mount point:
-ls /tmp/restricted_plain
+ls /scratch/$USER/restricted_plain
 # Should be empty (or show "No such file or directory" if you delete the directory)
 
 # Force unmount (if stuck):
-fusermount -uz /tmp/restricted_plain
+fusermount -uz /scratch/$USER/restricted_plain
 # Use -z flag if normal unmount fails
 # (mount point still exists but no longer mounted)
 ```
@@ -244,16 +244,16 @@ fusermount -uz /tmp/restricted_plain
 mount | grep gocryptfs
 
 # Example output:
-# /bigdata/mylab/restricted_data_cipher on /tmp/restricted_plain type fuse.gocryptfs ...
-# /bigdata/mylab/proprietary_cipher on /tmp/proprietary_plain type fuse.gocryptfs ...
+# /bigdata/lab/<labname>/restricted_data_cipher on /scratch/$USER/restricted_plain type fuse.gocryptfs ...
+# /bigdata/lab/<labname>/proprietary_cipher on /scratch/$USER/proprietary_plain type fuse.gocryptfs ...
 
 # Or use df (disk free):
 df -h | grep gocryptfs
 # Shows mount point and size
 
 # Or use mountpoint command:
-mountpoint /tmp/restricted_plain
-# Output: "/tmp/restricted_plain is a mountpoint" (or not)
+mountpoint /scratch/$USER/restricted_plain
+# Output: "/scratch/$USER/restricted_plain is a mountpoint" (or not)
 ```
 
 ---
@@ -265,7 +265,7 @@ mountpoint /tmp/restricted_plain
 gocryptfs -info /path/to/encrypted_cipher
 
 # Example:
-gocryptfs -info /bigdata/mylab/restricted_data_cipher
+gocryptfs -info /bigdata/lab/<labname>/restricted_data_cipher
 
 # Output:
 # Filesystem version: 2
@@ -277,13 +277,13 @@ gocryptfs -info /bigdata/mylab/restricted_data_cipher
 # SecretsPassphrase: true
 # HKDF: true
 # AES: AES-256-GCM
-# Argon2: true
+# scrypt: true
 # Reverse: false
 
 # This tells you:
 # - Encryption is working correctly
 # - Algorithm is AES-256-GCM
-# - Key derivation uses Argon2
+# - Key derivation uses scrypt
 # - Configuration is intact
 ```
 
@@ -302,13 +302,13 @@ module load gocryptfs
 # ============================================
 # STEP 2: Create directories (first time only)
 # ============================================
-mkdir -p /bigdata/mylab/health_survey_cipher
-mkdir -p /tmp/health_survey_plain
+mkdir -p /bigdata/lab/<labname>/health_survey_cipher
+mkdir -p /scratch/$USER/health_survey_plain
 
 # ============================================
 # STEP 3: Initialize encrypted vault
 # ============================================
-gocryptfs -init /bigdata/mylab/health_survey_cipher
+gocryptfs -init /bigdata/lab/<labname>/health_survey_cipher
 
 # You'll see:
 # Choose a password for protecting your files.
@@ -321,7 +321,7 @@ gocryptfs -init /bigdata/mylab/health_survey_cipher
 # ============================================
 # STEP 4: Verify vault initialization
 # ============================================
-ls -la /bigdata/mylab/health_survey_cipher/
+ls -la /bigdata/lab/<labname>/health_survey_cipher/
 # Output:
 # drwx------. 1 username groupname 4096 Apr  9 10:23 .
 # drwxr-xr-x. 1 username groupname 4096 Apr  9 10:20 ..
@@ -332,7 +332,7 @@ ls -la /bigdata/mylab/health_survey_cipher/
 # ============================================
 # STEP 5: Mount the vault
 # ============================================
-gocryptfs /bigdata/mylab/health_survey_cipher /tmp/health_survey_plain
+gocryptfs /bigdata/lab/<labname>/health_survey_cipher /scratch/$USER/health_survey_plain
 
 # You'll see:
 # Password: [type: MyHealthData#2026]
@@ -343,19 +343,19 @@ gocryptfs /bigdata/mylab/health_survey_cipher /tmp/health_survey_plain
 # STEP 6: Verify mount worked
 # ============================================
 mount | grep gocryptfs
-# Output: /bigdata/mylab/health_survey_cipher on /tmp/health_survey_plain type fuse.gocryptfs
+# Output: /bigdata/lab/<labname>/health_survey_cipher on /scratch/$USER/health_survey_plain type fuse.gocryptfs
 
-ls -la /tmp/health_survey_plain/
+ls -la /scratch/$USER/health_survey_plain/
 # Output: empty (because we just created the vault)
 
 # ============================================
 # STEP 7: Copy data into mounted vault
 # ============================================
-cp ~/survey_results.csv /tmp/health_survey_plain/
-cp ~/survey_analysis.py /tmp/health_survey_plain/
+cp ~/survey_results.csv /scratch/$USER/health_survey_plain/
+cp ~/survey_analysis.py /scratch/$USER/health_survey_plain/
 
 # Verify files are there:
-ls /tmp/health_survey_plain/
+ls /scratch/$USER/health_survey_plain/
 # Output:
 # survey_results.csv
 # survey_analysis.py
@@ -363,7 +363,7 @@ ls /tmp/health_survey_plain/
 # ============================================
 # STEP 8: Work with the data
 # ============================================
-cd /tmp/health_survey_plain
+cd /scratch/$USER/health_survey_plain
 wc -l survey_results.csv
 # Output: 501 survey_results.csv (header + 500 participants)
 
@@ -379,7 +379,7 @@ ls -la
 # STEP 9: Verify encrypted version is gibberish
 # ============================================
 # While still mounted, check the encrypted folder:
-ls /bigdata/mylab/health_survey_cipher/
+ls /bigdata/lab/<labname>/health_survey_cipher/
 # Output:
 # gocryptfs.conf  (encrypted config)
 # [random-encrypted-filename-1]
@@ -387,39 +387,39 @@ ls /bigdata/mylab/health_survey_cipher/
 # [random-encrypted-filename-3]
 
 # Try to read one:
-file /bigdata/mylab/health_survey_cipher/[random-encrypted-filename-1]
+file /bigdata/lab/<labname>/health_survey_cipher/[random-encrypted-filename-1]
 # Output: data (binary encrypted data)
 
 # ============================================
 # STEP 10: Unmount the vault
 # ============================================
-fusermount -u /tmp/health_survey_plain
+fusermount -u /scratch/$USER/health_survey_plain
 
 # Verify unmount:
 mount | grep health_survey_plain
 # Output: (nothing shown = success)
 
 # Check mount point is empty:
-ls /tmp/health_survey_plain/
+ls /scratch/$USER/health_survey_plain/
 # Output: (empty)
 
 # ============================================
 # STEP 11: Verify encryption is intact
 # ============================================
-ls /bigdata/mylab/health_survey_cipher/
+ls /bigdata/lab/<labname>/health_survey_cipher/
 # Output: (still encrypted gibberish)
 
-cat /bigdata/mylab/health_survey_cipher/[random-encrypted-filename-1] | head -c 50
+cat /bigdata/lab/<labname>/health_survey_cipher/[random-encrypted-filename-1] | head -c 50
 # Output: (binary gibberish, not readable)
 
 # ============================================
 # STEP 12: Mount again to access data later
 # ============================================
-gocryptfs /bigdata/mylab/health_survey_cipher /tmp/health_survey_plain
+gocryptfs /bigdata/lab/<labname>/health_survey_cipher /scratch/$USER/health_survey_plain
 # Password: [type: MyHealthData#2026]
 # Mount successful
 
-ls /tmp/health_survey_plain/
+ls /scratch/$USER/health_survey_plain/
 # Output:
 # survey_results.csv
 # survey_analysis.py
@@ -438,7 +438,7 @@ ls /tmp/health_survey_plain/
 # Verify encryption is set up and backed up
 # ============================================
 # Original owner has:
-# - /bigdata/mylab/collaborative_data_cipher/ (encrypted vault)
+# - /bigdata/lab/<labname>/collaborative_data_cipher/ (encrypted vault)
 # - Password stored in password manager
 # - gocryptfs.conf backed up separately
 
@@ -446,7 +446,7 @@ ls /tmp/health_survey_plain/
 # STEP 2: Communicate vault location
 # ============================================
 # Original owner tells collaborator:
-# "The encrypted vault is at: /bigdata/mylab/collaborative_data_cipher/"
+# "The encrypted vault is at: /bigdata/lab/<labname>/collaborative_data_cipher/"
 # (via email, Slack, team meeting, etc.)
 
 # ============================================
@@ -464,28 +464,28 @@ ls /tmp/health_survey_plain/
 # ============================================
 module load gocryptfs
 
-mkdir -p /tmp/collaborative_plain
+mkdir -p /scratch/$USER/collaborative_plain
 
-gocryptfs /bigdata/mylab/collaborative_data_cipher /tmp/collaborative_plain
+gocryptfs /bigdata/lab/<labname>/collaborative_data_cipher /scratch/$USER/collaborative_plain
 # Password: [enters shared password]
 # Mount successful
 
 # ============================================
 # STEP 5: Collaborator can access data
 # ============================================
-ls /tmp/collaborative_plain/
+ls /scratch/$USER/collaborative_plain/
 # Output: (files the original owner put there)
 
 # Read or modify files:
-head -5 /tmp/collaborative_plain/dataset.csv
+head -5 /scratch/$USER/collaborative_plain/dataset.csv
 
 # Add new data:
-cp ~/analysis_results.txt /tmp/collaborative_plain/
+cp ~/analysis_results.txt /scratch/$USER/collaborative_plain/
 
 # ============================================
 # STEP 6: Collaborator unmounts
 # ============================================
-fusermount -u /tmp/collaborative_plain
+fusermount -u /scratch/$USER/collaborative_plain
 
 # Data is encrypted again on disk
 # Only encrypted vault is backed up to snapshots
@@ -499,22 +499,22 @@ fusermount -u /tmp/collaborative_plain
 # ============================================
 # Method 1: Snapshot (if available on filesystem)
 # ============================================
-ls -la /bigdata/mylab/health_survey_cipher/.snapshot/
+ls -la /bigdata/lab/<labname>/health_survey_cipher/.snapshot/
 # Output (if BeeGFS snapshots available):
 # daily.0  daily.1  daily.2  ... (automatic daily snapshots)
 
 # Copy snapshot:
-cp -r /bigdata/mylab/health_survey_cipher/.snapshot/daily.0/ \
-      /bigdata/mylab/backups/health_survey_backup_2026-04-09/
+cp -r /bigdata/lab/<labname>/health_survey_cipher/.snapshot/daily.0/ \
+      /bigdata/lab/<labname>/backups/health_survey_backup_2026-04-09/
 
 # Verify backup:
-ls -la /bigdata/mylab/backups/health_survey_backup_2026-04-09/
+ls -la /bigdata/lab/<labname>/backups/health_survey_backup_2026-04-09/
 # Output: gocryptfs.conf (still encrypted)
 
 # ============================================
 # Method 2: Archive to tar.gz
 # ============================================
-cd /bigdata/mylab/
+cd /bigdata/lab/<labname>/
 tar -czf health_survey_archive_2026-04.tar.gz health_survey_cipher/
 
 # Verify archive:
@@ -527,7 +527,7 @@ ls -la health_survey_archive_2026-04.tar.gz
 # Mount external drive: /mnt/external_drive/
 # (Assuming already mounted)
 
-cp -r /bigdata/mylab/health_survey_cipher/ /mnt/external_drive/backups/
+cp -r /bigdata/lab/<labname>/health_survey_cipher/ /mnt/external_drive/backups/
 
 # Note: Encrypted vault is encrypted at rest
 # Even if external drive is stolen, data remains protected
@@ -540,11 +540,11 @@ cp -r /bigdata/mylab/health_survey_cipher/ /mnt/external_drive/backups/
 # Backup to password manager notes:
 # In Bitwarden: Edit gocryptfs entry → Notes field
 # Paste the output of:
-cp /bigdata/mylab/health_survey_cipher/gocryptfs.conf \
+cp /bigdata/lab/<labname>/health_survey_cipher/gocryptfs.conf \
    ~/gocryptfs_config_backup_2026-04-09.txt
 
 # View (for backup purposes):
-cat /bigdata/mylab/health_survey_cipher/gocryptfs.conf | base64
+cat /bigdata/lab/<labname>/health_survey_cipher/gocryptfs.conf | base64
 # Copy this base64 output into password manager as backup
 
 # Restore from backup (if needed):
@@ -561,7 +561,7 @@ cat /bigdata/mylab/health_survey_cipher/gocryptfs.conf | base64
 # ============================================
 # STEP 1: Vault must be unmounted
 # ============================================
-fusermount -u /tmp/health_survey_plain
+fusermount -u /scratch/$USER/health_survey_plain
 # Verify unmount
 mount | grep health_survey_plain
 # (should show nothing)
@@ -569,7 +569,7 @@ mount | grep health_survey_plain
 # ============================================
 # STEP 2: Change password
 # ============================================
-gocryptfs -passwd /bigdata/mylab/health_survey_cipher
+gocryptfs -passwd /bigdata/lab/<labname>/health_survey_cipher
 
 # Console interaction:
 # Password: [type: OLD_PASSWORD]
@@ -589,20 +589,20 @@ gocryptfs -passwd /bigdata/mylab/health_survey_cipher
 # ============================================
 # STEP 4: Test new password
 # ============================================
-mkdir -p /tmp/health_survey_plain
+mkdir -p /scratch/$USER/health_survey_plain
 
-gocryptfs /bigdata/mylab/health_survey_cipher /tmp/health_survey_plain
+gocryptfs /bigdata/lab/<labname>/health_survey_cipher /scratch/$USER/health_survey_plain
 # Password: [type: NEW_PASSWORD]
 # Mount successful
 
 # Verify:
-ls /tmp/health_survey_plain/
+ls /scratch/$USER/health_survey_plain/
 # Output: (your files are accessible)
 
 # ============================================
 # STEP 5: Unmount
 # ============================================
-fusermount -u /tmp/health_survey_plain
+fusermount -u /scratch/$USER/health_survey_plain
 ```
 
 ---
@@ -624,14 +624,14 @@ fusermount -u /tmp/health_survey_plain
 # STEP 1: Load modules
 # ============================================
 module load gocryptfs
-module load python/3.10
+module load miniconda3/py313_26.3.2-2   # check `module avail` for current versions
 
 # ============================================
 # STEP 2: Set variables
 # ============================================
-ENCRYPTED_VAULT="/bigdata/mylab/restricted_data_cipher"
+ENCRYPTED_VAULT="/bigdata/lab/<labname>/restricted_data_cipher"
 MOUNT_POINT="/tmp/restricted_data_${SLURM_JOB_ID}"
-PASSWORD_FILE="/home/username/.gocryptfs_password"  # ⚠️ Store securely!
+PASSWORD_FILE="/rhome/<myusername>/.gocryptfs_password"  # ⚠️ Store securely!
 
 # ============================================
 # STEP 3: Create mount point
@@ -721,14 +721,14 @@ tail -f analysis_*.log
 # ==========================================
 # PUBLIC data (published, open)
 # ==========================================
-chmod 755 /bigdata/mylab/public_data/
+chmod 755 /bigdata/lab/<labname>/public_data/
 # Readable by: world
 # Writable by: owner only
 
 # ==========================================
 # PROPRIETARY data (group access, not encrypted)
 # ==========================================
-chmod 750 /bigdata/mylab/research_data/
+chmod 750 /bigdata/lab/<labname>/research_data/
 # Readable by: owner + group
 # Writable by: owner + group
 # No access: others (world)
@@ -736,13 +736,13 @@ chmod 750 /bigdata/mylab/research_data/
 # ==========================================
 # PROPRIETARY encrypted data
 # ==========================================
-chmod 700 /bigdata/mylab/proprietary_cipher/
+chmod 700 /bigdata/lab/<labname>/proprietary_cipher/
 # (After mounting, use inside mount point)
 
 # ==========================================
 # RESTRICTED data (owner only, encrypted)
 # ==========================================
-chmod 700 /bigdata/mylab/restricted_cipher/
+chmod 700 /bigdata/lab/<labname>/restricted_cipher/
 # Accessible by: owner only
 # Encryption adds additional layer of security
 # Data is unreadable even if permissions somehow fail
@@ -750,7 +750,7 @@ chmod 700 /bigdata/mylab/restricted_cipher/
 # ==========================================
 # Lab directory (contains encrypted vaults)
 # ==========================================
-chmod 710 /bigdata/mylab/
+chmod 710 /bigdata/lab/<labname>/
 # Readable by: owner + group (so they can mount their own vaults)
 # Contains encrypted_vault_1_cipher/, encrypted_vault_2_cipher/, etc.
 # Group members can mount if they know password
@@ -760,19 +760,19 @@ chmod 710 /bigdata/mylab/
 
 ```bash
 # Set private (owner only)
-chmod 700 /bigdata/mylab/restricted_cipher
+chmod 700 /bigdata/lab/<labname>/restricted_cipher
 
 # Set group-accessible (owner + group)
-chmod 750 /bigdata/mylab/proprietary_cipher
+chmod 750 /bigdata/lab/<labname>/proprietary_cipher
 
 # Set world-readable (public)
-chmod 755 /bigdata/mylab/public_data
+chmod 755 /bigdata/lab/<labname>/public_data
 
 # Set world-readable, not writable
-chmod 644 /bigdata/mylab/public_file.txt
+chmod 644 /bigdata/lab/<labname>/public_file.txt
 
 # Verify permissions:
-ls -la /bigdata/mylab/
+ls -la /bigdata/lab/<labname>/
 # Output: drwx------  (700 = private)
 #         drwxr-x---  (750 = group)
 #         drwxr-xr-x  (755 = public)
@@ -828,13 +828,13 @@ cd /tmp
 # (or any directory NOT mounted)
 
 # 3. Try unmount:
-fusermount -u /tmp/restricted_plain
+fusermount -u /scratch/$USER/restricted_plain
 
 # 4. If still fails, force unmount:
-fusermount -uz /tmp/restricted_plain
+fusermount -uz /scratch/$USER/restricted_plain
 
 # 5. Re-mount and try again:
-gocryptfs /path/to/vault /tmp/restricted_plain
+gocryptfs /path/to/vault /scratch/$USER/restricted_plain
 ```
 
 **Issue: "Disk quota exceeded"**
@@ -844,7 +844,7 @@ quota_check.sh
 
 # 2. If available = 0, quota is full
 # 3. Delete unnecessary files
-rm -r /bigdata/mylab/old_data/
+rm -r /bigdata/lab/<labname>/old_data/
 
 # 4. Or request increase from PI
 # Email: its-hpc@pomona.edu
@@ -855,7 +855,7 @@ rm -r /bigdata/mylab/old_data/
 **Issue: "Lost encryption password"**
 ```bash
 # Unfortunately: DATA IS UNRECOVERABLE without password
-# gocryptfs uses Argon2 key derivation (brute-force resistant)
+# gocryptfs uses scrypt key derivation (brute-force resistant)
 # Even Pomona IT cannot recover data
 
 # What to do:
@@ -864,7 +864,7 @@ rm -r /bigdata/mylab/old_data/
 # 3. Ask colleagues if they know the password
 # 4. Email its-hpc@pomona.edu (they CANNOT recover it)
 # 5. Restore from backup if available:
-tar -xzf /bigdata/mylab/backups/vault_backup_2026-03.tar.gz
+tar -xzf /bigdata/lab/<labname>/backups/vault_backup_2026-03.tar.gz
 
 # PREVENTION: Store password immediately in password manager!
 ```
@@ -890,13 +890,13 @@ mount | grep gocryptfs
 
 **Step 2: Locate gocryptfs.conf**
 ```bash
-ls -la /bigdata/mylab/restricted_cipher/
+ls -la /bigdata/lab/<labname>/restricted_cipher/
 # Output: -rw------- gocryptfs.conf
 ```
 
 **Step 3: Create base64 copy (for password manager)**
 ```bash
-cat /bigdata/mylab/restricted_cipher/gocryptfs.conf | base64 > gocryptfs_config_backup.txt
+cat /bigdata/lab/<labname>/restricted_cipher/gocryptfs.conf | base64 > gocryptfs_config_backup.txt
 
 # View it:
 cat gocryptfs_config_backup.txt
@@ -910,8 +910,8 @@ cat gocryptfs_config_backup.txt
 # 2. Edit → Notes field
 # 3. Paste: [base64 string from step 3]
 # 4. Also add:
-#    - Vault location: /bigdata/mylab/restricted_cipher
-#    - Mount point: /tmp/restricted_plain
+#    - Vault location: /bigdata/lab/<labname>/restricted_cipher
+#    - Mount point: /scratch/$USER/restricted_plain
 #    - Created: 2026-04-09
 #    - Last tested: 2026-04-09
 # 5. Save
@@ -919,28 +919,28 @@ cat gocryptfs_config_backup.txt
 
 **Step 5: Create filesystem copy (backup location)**
 ```bash
-mkdir -p /bigdata/mylab/backups/configs/
+mkdir -p /bigdata/lab/<labname>/backups/configs/
 
-cp /bigdata/mylab/restricted_cipher/gocryptfs.conf \
-   /bigdata/mylab/backups/configs/gocryptfs_restricted_cipher_2026-04-09.conf
+cp /bigdata/lab/<labname>/restricted_cipher/gocryptfs.conf \
+   /bigdata/lab/<labname>/backups/configs/gocryptfs_restricted_cipher_2026-04-09.conf
 
 # Verify:
-ls -la /bigdata/mylab/backups/configs/
+ls -la /bigdata/lab/<labname>/backups/configs/
 # Output: -rw------- gocryptfs_restricted_cipher_2026-04-09.conf
 ```
 
 **Step 6: Test recovery (optional but recommended)**
 ```bash
 # Simulate data loss by moving original vault temporarily:
-mv /bigdata/mylab/restricted_cipher/gocryptfs.conf /tmp/gocryptfs_hidden.conf
+mv /bigdata/lab/<labname>/restricted_cipher/gocryptfs.conf /tmp/gocryptfs_hidden.conf
 
 # Restore from backup:
-cp /bigdata/mylab/backups/configs/gocryptfs_restricted_cipher_2026-04-09.conf \
-   /bigdata/mylab/restricted_cipher/gocryptfs.conf
+cp /bigdata/lab/<labname>/backups/configs/gocryptfs_restricted_cipher_2026-04-09.conf \
+   /bigdata/lab/<labname>/restricted_cipher/gocryptfs.conf
 
 # Try to mount:
 mkdir /tmp/test_recovery
-gocryptfs /bigdata/mylab/restricted_cipher /tmp/test_recovery
+gocryptfs /bigdata/lab/<labname>/restricted_cipher /tmp/test_recovery
 # Password: [your password]
 # Mount successful?
 
@@ -960,7 +960,7 @@ fusermount -u /tmp/test_recovery
 - [ ] Unmount when done working
 
 ### Weekly
-- [ ] Verify backup exists: `ls -la /bigdata/mylab/backups/`
+- [ ] Verify backup exists: `ls -la /bigdata/lab/<labname>/backups/`
 - [ ] Spot-check backup is not corrupted
 
 ### Monthly
@@ -985,7 +985,7 @@ fusermount -u /tmp/test_recovery
 ### Level 1: Self-Help (Start Here)
 1. Check this reference guide (search by error message)
 2. Run: `gocryptfs --help` and `gocryptfs -h`
-3. Check Sagehen wiki: https://hpc.pomona.edu/wiki/
+3. Check Sagehen wiki: https://www.pomona.edu/its/
 4. Google error message + "gocryptfs"
 
 ### Level 2: Password Manager Support
@@ -1011,7 +1011,7 @@ Subject: gocryptfs mount failing with "Bad password"
 Body:
 I'm trying to mount an encrypted vault but getting "Bad password" error.
 
-Command: gocryptfs /bigdata/mylab/data_cipher /tmp/data_plain
+Command: gocryptfs /bigdata/lab/<labname>/data_cipher /scratch/$USER/data_plain
 Error: Decrypting master key: password incorrect
 
 Password is 16 characters, stored in Bitwarden.
@@ -1035,7 +1035,7 @@ Can you help troubleshoot?
 
 - **If vault is corrupted**: Check snapshots immediately
   ```bash
-  ls -la /bigdata/mylab/vault/.snapshot/
+  ls -la /bigdata/lab/<labname>/vault/.snapshot/
   # Try to restore: cp -r .snapshot/daily.0/* ./
   ```
 
@@ -1106,15 +1106,15 @@ gocryptfs /path/to/vault_cipher /tmp/test_mount
 - [ ] Password is NOT in email, text, or plain text file
 
 ### Vault Management
-- [ ] Vault is at: /bigdata/labname/[dataset]_cipher/
-- [ ] Mount point is: /tmp/[dataset]_plain/ or $HOME/mnt/[dataset]_plain/
+- [ ] Vault is at: `/bigdata/lab/<labname>/`[dataset]_cipher/
+- [ ] Mount point is on node-local scratch: /scratch/$USER/[dataset]_plain/ (never /bigdata or /rhome — BeeGFS)
 - [ ] Vault has permissions: 700 (owner only)
 - [ ] gocryptfs.conf is backed up separately
 - [ ] Vault is only mounted when needed
 - [ ] Vault is unmounted before leaving
 
 ### Backup Strategy
-- [ ] Automated snapshots: ls -la /bigdata/labname/.[snapshots/] working
+- [ ] Automated snapshots: ls -la `/bigdata/lab/<labname>/.`[snapshots/] working
 - [ ] Manual archive: tar -czf backup_2026-04.tar.gz vault_cipher/
 - [ ] gocryptfs.conf backed up to password manager
 - [ ] At least 2 backup locations (filesystem + password manager)
@@ -1144,32 +1144,32 @@ gocryptfs /path/to/vault_cipher /tmp/test_mount
 module load gocryptfs
 
 # Create directories
-mkdir -p /bigdata/lab/data_cipher /tmp/data_plain
+mkdir -p /bigdata/lab/<labname>/data_cipher /scratch/$USER/data_plain
 
 # Initialize (first time)
-gocryptfs -init /bigdata/lab/data_cipher
+gocryptfs -init /bigdata/lab/<labname>/data_cipher
 
 # Mount
-gocryptfs /bigdata/lab/data_cipher /tmp/data_plain
+gocryptfs /bigdata/lab/<labname>/data_cipher /scratch/$USER/data_plain
 
 # Work with files
-cp myfile.csv /tmp/data_plain/
-python analyze.py < /tmp/data_plain/myfile.csv
+cp myfile.csv /scratch/$USER/data_plain/
+python analyze.py < /scratch/$USER/data_plain/myfile.csv
 
 # Unmount
-fusermount -u /tmp/data_plain
+fusermount -u /scratch/$USER/data_plain
 
 # Check mounts
 mount | grep gocryptfs
 
 # Verify vault
-gocryptfs -info /bigdata/lab/data_cipher
+gocryptfs -info /bigdata/lab/<labname>/data_cipher
 
 # Change password
-gocryptfs -passwd /bigdata/lab/data_cipher
+gocryptfs -passwd /bigdata/lab/<labname>/data_cipher
 
 # Backup vault
-tar -czf backup_2026-04.tar.gz /bigdata/lab/data_cipher/
+tar -czf backup_2026-04.tar.gz /bigdata/lab/<labname>/data_cipher/
 
 # Check quota
 quota_check.sh
@@ -1180,8 +1180,8 @@ quota_check.sh
 ## Resources
 
 - **gocryptfs documentation**: https://nuetzlich.net/gocryptfs/
-- **Sagehen HPC wiki**: https://hpc.pomona.edu/wiki/
-- **Pomona College security**: https://www.pomona.edu/administration/information-technology-services/security
+- **Sagehen HPC wiki**: https://www.pomona.edu/its/
+- **Pomona College security**: https://www.pomona.edu/its/
 - **NIST password guidelines**: https://pages.nist.gov/800-63-3/
 - **Email support**: its-hpc@pomona.edu
 
@@ -1190,3 +1190,6 @@ quota_check.sh
 **Last Updated**: April 2026  
 **Version**: 2.1  
 **For help**: Email its-hpc@pomona.edu
+
+<!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
+<script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>
