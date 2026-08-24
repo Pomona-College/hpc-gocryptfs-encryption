@@ -61,6 +61,12 @@
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/aio.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/images.html</loc>
+  </url>
+  <url>
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/index.html</loc>
   </url>
   <url>
@@ -124,13 +130,31 @@
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/aio.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/images.html</loc>
+  </url>
+  <url>
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/index.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/instructor-notes.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/key-points.html</loc>
   </url>
   <url>
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/profiles.html</loc>
   </url>
   <url>
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor/reference.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/instructor-notes.html</loc>
+  </url>
+  <url>
+    <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/key-points.html</loc>
   </url>
   <url>
     <loc>https://pomona-college.github.io/hpc-gocryptfs-encryption/profiles.html</loc>
