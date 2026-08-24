@@ -1,0 +1,37 @@
+---
+carpentry: 'incubator'
+title: 'gocryptfs Encryption for Research Data — Pomona College HPC Workshop Series'
+created: '2026-03-05'
+license: 'CC-BY 4.0'
+source: 'https://github.com/Pomona-College/hpc-gocryptfs-encryption'
+url: 'https://pomona-college.github.io/hpc-gocryptfs-encryption/'
+contact: 'its-hpc@pomona.edu'
+description: 'Encrypting RESTRICTED research data on Sagehen with gocryptfs: creating vaults, mounting inside jobs, and key management.'
+branch: 'main'
+life_cycle: 'stable'
+keywords: 'Pomona College, HPC, research computing, encryption, gocryptfs, data-protection, restricted-data, research-security, hipaa, ferpa, sagehen'
+episodes:
+- 01-regulatory-landscape.md
+- 02-data-classification.md
+- 03-scenarios-responsibilities.md
+- 04-gocryptfs-architecture.md
+- 05-encryption-internals.md
+- 06-planning-directories.md
+- 07-creating-encrypted-dirs.md
+- 08-mounting-workflow.md
+- 09-non-interactive-mounting.md
+- 10-slurm-decision-framework.md
+- 11-slurm-script-template.md
+- 12-slurm-advanced.md
+- 13-key-backup.md
+- 14-password-management.md
+- 15-lab-management.md
+- 16-security-best-practices.md
+- 17-verification-maintenance.md
+learners:
+- setup.md
+- reference.md
+instructors:
+- instructor-notes.md
+profiles:
+- learner-profiles.md

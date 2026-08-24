@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 560" width="880" height="560" font-family="Arial, Helvetica, sans-serif" role="img">
+  <title>SLURM mount-compute-unmount pattern</title>
+  <desc>A batch job sets a trap for cleanup, mounts the encrypted directory with a password file, computes, and the trap guarantees unmount even on failure</desc>
+  <defs>
+    <filter id="ssp" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+    <marker id="asp" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#003366"/>
+    </marker>
+    <marker id="aspr" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#DC3545"/>
+    </marker>
+  </defs>
+
+  <!-- SBATCH header -->
+  <g filter="url(#ssp)">
+    <rect x="280" y="20" width="320" height="58" rx="8" fill="#003366"/>
+    <text x="440" y="44" text-anchor="middle" fill="#fff" font-size="13.5" font-weight="bold">Job starts on compute node</text>
+    <text x="440" y="64" text-anchor="middle" fill="#D4A843" font-size="11.5" font-family="monospace">#SBATCH --partition=... --time=...</text>
+  </g>
+  <path d="M 440,78 L 440,104" fill="none" stroke="#003366" stroke-width="1.8" marker-end="url(#asp)"/>
+
+  <!-- Trap -->
+  <g filter="url(#ssp)">
+    <rect x="240" y="108" width="400" height="62" rx="8" fill="#FBF4E2" stroke="#D4A843" stroke-width="2"/>
+    <text x="440" y="132" text-anchor="middle" fill="#000" font-size="13" font-weight="bold">Set cleanup trap FIRST</text>
+    <text x="440" y="154" text-anchor="middle" fill="#000" font-size="11.5" font-family="monospace">trap 'fusermount -u "$PLAIN"' EXIT</text>
+  </g>
+  <path d="M 440,170 L 440,196" fill="none" stroke="#003366" stroke-width="1.8" marker-end="url(#asp)"/>
+
+  <!-- Mount -->
+  <g filter="url(#ssp)">
+    <rect x="240" y="200" width="400" height="76" rx="8" fill="#EAF1F7" stroke="#004B87" stroke-width="2"/>
+    <text x="440" y="224" text-anchor="middle" fill="#003366" font-size="13" font-weight="bold">Mount encrypted directory</text>
+    <text x="440" y="246" text-anchor="middle" fill="#003366" font-size="11.5" font-family="monospace">gocryptfs --passfile "$PASSFILE" cipher plain</text>
+    <text x="440" y="266" text-anchor="middle" fill="#003366" font-size="11">plain on node-local $TMPDIR or /scratch; passfile chmod 600 — never in the script</text>
+  </g>
+  <path d="M 440,276 L 440,302" fill="none" stroke="#003366" stroke-width="1.8" marker-end="url(#asp)"/>
+
+  <!-- Verify -->
+  <g filter="url(#ssp)">
+    <rect x="240" y="306" width="400" height="58" rx="8" fill="#EAF1F7" stroke="#004B87" stroke-width="2"/>
+    <text x="440" y="330" text-anchor="middle" fill="#003366" font-size="13" font-weight="bold">Verify before computing</text>
+    <text x="440" y="350" text-anchor="middle" fill="#003366" font-size="11.5" font-family="monospace">mountpoint -q "$PLAIN" || exit 1</text>
+  </g>
+  <path d="M 440,364 L 440,390" fill="none" stroke="#003366" stroke-width="1.8" marker-end="url(#asp)"/>
+
+  <!-- Compute -->
+  <g filter="url(#ssp)">
+    <rect x="240" y="394" width="400" height="62" rx="8" fill="#EAF6EC" stroke="#28A745" stroke-width="2"/>
+    <text x="440" y="418" text-anchor="middle" fill="#1E5B2E" font-size="13" font-weight="bold">Compute on decrypted data</text>
+    <text x="440" y="440" text-anchor="middle" fill="#1E5B2E" font-size="11.5" font-family="monospace">python analysis.py --input "$PLAIN/data/"</text>
+  </g>
+  <path d="M 440,456 L 440,482" fill="none" stroke="#003366" stroke-width="1.8" marker-end="url(#asp)"/>
+
+  <!-- Unmount -->
+  <g filter="url(#ssp)">
+    <rect x="240" y="486" width="400" height="58" rx="8" fill="#EAF1F7" stroke="#004B87" stroke-width="2"/>
+    <text x="440" y="510" text-anchor="middle" fill="#003366" font-size="13" font-weight="bold">Job ends → trap fires → unmount</text>
+    <text x="440" y="530" text-anchor="middle" fill="#003366" font-size="11.5">data back at rest, encrypted — even if the job crashed</text>
+  </g>
+
+  <!-- Failure path -->
+  <path d="M 640,425 Q 730,425 730,470 Q 730,515 648,515" fill="none" stroke="#DC3545" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#aspr)"/>
+  <text x="760" y="440" text-anchor="middle" fill="#8B1E2C" font-size="11.5" font-weight="bold">crash or</text>
+  <text x="760" y="456" text-anchor="middle" fill="#8B1E2C" font-size="11.5" font-weight="bold">timeout?</text>
+  <text x="762" y="480" text-anchor="middle" fill="#8B1E2C" font-size="11.5">trap still</text>
+  <text x="762" y="496" text-anchor="middle" fill="#8B1E2C" font-size="11.5">unmounts</text>
+
+  <!-- Left annotation -->
+  <text x="120" y="130" text-anchor="middle" fill="#666" font-size="11.5" font-style="italic">Why trap first?</text>
+  <text x="120" y="148" text-anchor="middle" fill="#666" font-size="11.5" font-style="italic">Whatever happens</text>
+  <text x="120" y="166" text-anchor="middle" fill="#666" font-size="11.5" font-style="italic">later, cleanup runs.</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" font-family="Arial, Helvetica, sans-serif" role="img">
+  <title>Pomona three-tier data classification</title>
+  <desc>PUBLIC green 755, PROPRIETARY orange 750, RESTRICTED red 700 plus gocryptfs encryption</desc>
+  <defs>
+    <filter id="sct" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- PUBLIC -->
+  <g filter="url(#sct)">
+    <rect x="20" y="20" width="290" height="360" rx="10" fill="#EAF6EC" stroke="#28A745" stroke-width="2"/>
+    <rect x="20" y="20" width="290" height="46" rx="10" fill="#28A745"/>
+    <rect x="20" y="46" width="290" height="20" fill="#28A745"/>
+    <text x="165" y="49" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Tier 1: PUBLIC</text>
+    <text x="165" y="96" text-anchor="middle" fill="#1E5B2E" font-size="14" font-weight="bold" font-family="monospace">permissions 755</text>
+    <line x1="45" y1="114" x2="285" y2="114" stroke="#28A745" stroke-opacity="0.35"/>
+    <text x="165" y="140" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Published papers and datasets</text>
+    <text x="165" y="162" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Open government data</text>
+    <text x="165" y="184" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Public course materials</text>
+    <line x1="45" y1="204" x2="285" y2="204" stroke="#28A745" stroke-opacity="0.35"/>
+    <text x="165" y="230" text-anchor="middle" fill="#1E5B2E" font-size="12.5" font-weight="bold">Encryption: not needed</text>
+    <text x="165" y="254" text-anchor="middle" fill="#1E5B2E" font-size="12.5">Exposure risk: none</text>
+    <text x="165" y="330" text-anchor="middle" fill="#1E5B2E" font-size="12" font-style="italic">Share freely</text>
+  </g>
+
+  <!-- PROPRIETARY -->
+  <g filter="url(#sct)">
+    <rect x="335" y="20" width="290" height="360" rx="10" fill="#FFF4E8" stroke="#FD7E14" stroke-width="2"/>
+    <rect x="335" y="20" width="290" height="46" rx="10" fill="#FD7E14"/>
+    <rect x="335" y="46" width="290" height="20" fill="#FD7E14"/>
+    <text x="480" y="49" text-anchor="middle" fill="#000" font-size="16" font-weight="bold">Tier 2: PROPRIETARY</text>
+    <text x="480" y="96" text-anchor="middle" fill="#8A4A0B" font-size="14" font-weight="bold" font-family="monospace">permissions 750</text>
+    <line x1="360" y1="114" x2="600" y2="114" stroke="#FD7E14" stroke-opacity="0.35"/>
+    <text x="480" y="140" text-anchor="middle" fill="#8A4A0B" font-size="12.5">Unpublished research data</text>
+    <text x="480" y="162" text-anchor="middle" fill="#8A4A0B" font-size="12.5">Draft manuscripts and code</text>
+    <text x="480" y="184" text-anchor="middle" fill="#8A4A0B" font-size="12.5">Pre-patent inventions</text>
+    <line x1="360" y1="204" x2="600" y2="204" stroke="#FD7E14" stroke-opacity="0.35"/>
+    <text x="480" y="230" text-anchor="middle" fill="#8A4A0B" font-size="12.5" font-weight="bold">Encryption: recommended</text>
+    <text x="480" y="254" text-anchor="middle" fill="#8A4A0B" font-size="12.5">Exposure risk: lost priority,</text>
+    <text x="480" y="274" text-anchor="middle" fill="#8A4A0B" font-size="12.5">competitive harm</text>
+    <text x="480" y="330" text-anchor="middle" fill="#8A4A0B" font-size="12" font-style="italic">Lab members only</text>
+  </g>
+
+  <!-- RESTRICTED -->
+  <g filter="url(#sct)">
+    <rect x="650" y="20" width="290" height="360" rx="10" fill="#FDECEF" stroke="#DC3545" stroke-width="2"/>
+    <rect x="650" y="20" width="290" height="46" rx="10" fill="#DC3545"/>
+    <rect x="650" y="46" width="290" height="20" fill="#DC3545"/>
+    <text x="795" y="49" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Tier 3: RESTRICTED</text>
+    <text x="795" y="96" text-anchor="middle" fill="#8B1E2C" font-size="14" font-weight="bold" font-family="monospace">700 + gocryptfs</text>
+    <line x1="675" y1="114" x2="915" y2="114" stroke="#DC3545" stroke-opacity="0.35"/>
+    <text x="795" y="140" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Student records (FERPA)</text>
+    <text x="795" y="162" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Health data (HIPAA)</text>
+    <text x="795" y="184" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Export-controlled work (EAR/ITAR)</text>
+    <line x1="675" y1="204" x2="915" y2="204" stroke="#DC3545" stroke-opacity="0.35"/>
+    <text x="795" y="230" text-anchor="middle" fill="#8B1E2C" font-size="12.5" font-weight="bold">Encryption: MANDATORY</text>
+    <text x="795" y="254" text-anchor="middle" fill="#8B1E2C" font-size="12.5">Exposure risk: federal penalties,</text>
+    <text x="795" y="274" text-anchor="middle" fill="#8B1E2C" font-size="12.5">harm to research subjects</text>
+    <text x="795" y="330" text-anchor="middle" fill="#8B1E2C" font-size="12" font-style="italic">gocryptfs required — this workshop</text>
+  </g>
+</svg>
