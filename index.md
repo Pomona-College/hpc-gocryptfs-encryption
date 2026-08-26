@@ -56,3 +56,9 @@ Key backup, password management, lab group management, security best practices, 
 - **Password requirement:** 14+ characters ([NIST SP 800-63B][nist-800-63b])
 - **No password recovery:** Forgotten passwords mean permanently lost data
 - **Critical file:** `gocryptfs.conf` must be backed up — losing it means losing all encrypted data
+
+## Acknowledgments
+
+Developed by **Andrew Wilson**, Director of Research Computing and Digital
+Scholarship at Pomona College, with **Andrei Motchenko**, who tested, edited
+and produced screenshots for the workshop series.
