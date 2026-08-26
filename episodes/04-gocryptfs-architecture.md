@@ -78,7 +78,7 @@ in detail.
 This is the **actual encrypted storage** on disk:
 
 - Contains encrypted files with encrypted names
-- Stored permanently on Sagehen's BeeGFS filesystem
+- Stored permanently on Sagehen HPC's BeeGFS filesystem
 - Looks like random data to anyone without the passphrase
 - This is what gets backed up
 - Remains encrypted when you're not actively working
@@ -181,7 +181,7 @@ Encrypted files on disk (/bigdata/lab/<labname>/secret_cipher/)
 
 ## Challenge: Trace the Data Flow
 
-A researcher runs this command on the Sagehen cluster:
+A researcher runs this command on the Sagehen HPC cluster:
 
 ```bash
 echo "experiment results: 42.7" > /scratch/$USER/secret_plain/results.txt

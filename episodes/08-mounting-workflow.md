@@ -27,7 +27,7 @@ exercises: 10
 
 ## Mount From a Compute Session, Onto /scratch
 
-Two hard rules on Sagehen: the plain directory (mountpoint) must be on
+Two hard rules on Sagehen HPC: the plain directory (mountpoint) must be on
 node-local `/scratch/$USER/` — FUSE refuses to mount onto `/bigdata` (BeeGFS is
 a network filesystem) — and mounting happens **inside a compute session**
 (`srun --pty bash` for interactive work, or within an `sbatch` script), never
@@ -74,7 +74,7 @@ Password: [enter your password]
 Filesystem mounted successfully.
 ```
 
-![The same sequence on Sagehen: claim a compute session, create the mountpoint, mount.](fig/08-gocryptfs-mount-success.png){alt='Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns.'}
+![The same sequence on Sagehen HPC: claim a compute session, create the mountpoint, mount.](fig/08-gocryptfs-mount-success.png){alt='Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns.'}
 
 Note the order: the `srun` session comes first, then `mkdir -p` on `/scratch`,
 then the mount. Running `gocryptfs` before you have a compute session, or against

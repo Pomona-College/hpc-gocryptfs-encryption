@@ -177,7 +177,7 @@ Choose your password carefully. If you forget it, there is no recovery method. Y
 
 ## Load the gocryptfs Module First
 
-Sagehen provides gocryptfs through Lmod (currently `gocryptfs/2.6.1`). Before
+Sagehen HPC provides gocryptfs through Lmod (currently `gocryptfs/2.6.1`). Before
 the steps below, load it and confirm the command is available:
 
 ```bash

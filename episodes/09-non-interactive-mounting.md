@@ -14,7 +14,7 @@ exercises: 10
 ::::::::::::::::::::::::::::::::::::: objectives
 - Mount gocryptfs non-interactively in SLURM job scripts
 - Compare security of three non-interactive mounting methods
-- Understand password storage security on Sagehen
+- Understand password storage security on Sagehen HPC
 - Troubleshoot common mount errors
 - Understand mount persistence across reboots and job completion
 - Implement proper error handling in SLURM scripts

@@ -29,7 +29,7 @@ The following learner profiles represent typical backgrounds, data contexts, and
 
 ### Specific Needs from Workshop
 
-- Understand regulatory requirements (HIPAA, IRB) for data protection on Sagehen
+- Understand regulatory requirements (HIPAA, IRB) for data protection on Sagehen HPC
 - Set up gocryptfs for genomic dataset (~50 GB) on shared /bigdata storage
 - Create secure mount workflow that lab members can follow without deep technical knowledge
 - Implement tiered access: lead researchers, analysts, student assistants have different permissions

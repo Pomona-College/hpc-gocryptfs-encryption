@@ -261,7 +261,7 @@ gocryptfs -speed
 
 ## Challenge: Find the Mistakes
 
-Dr. Chen is a new researcher on the Sagehen cluster working with FERPA-protected student survey data. Read through her workflow and identify **5 security mistakes**.
+Dr. Chen is a new researcher on the Sagehen HPC cluster working with FERPA-protected student survey data. Read through her workflow and identify **5 security mistakes**.
 
 > Dr. Chen created an encrypted directory at `/bigdata/lab/chenlab/surveys_cipher/` and mounts it daily. She wrote her gocryptfs password on a sticky note attached to her monitor so she would not forget it. Her SLURM job script contains the line `echo "SurveyPass2024!" | gocryptfs /bigdata/lab/chenlab/surveys_cipher /scratch/$USER/surveys_plain -` and she committed this script to the lab's GitHub repository. After her analysis jobs finish, she often leaves the mount active overnight because she plans to continue the next morning. She also keeps an unencrypted copy of the survey responses at `/bigdata/lab/chenlab/backup/surveys_raw.csv` in case the encryption ever fails. She has never tested whether her `gocryptfs.conf` backup actually works.
 

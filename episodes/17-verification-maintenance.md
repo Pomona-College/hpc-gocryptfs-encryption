@@ -16,7 +16,7 @@ exercises: 15
 - Verify encryption security with a complete testing protocol
 - Maintain encrypted systems through a practical maintenance schedule
 - Respond appropriately to potential security incidents
-- Integrate gocryptfs with other Sagehen tools (OnDemand, VS Code, rclone)
+- Integrate gocryptfs with other Sagehen HPC tools (OnDemand, VS Code, rclone)
 - Implement secure data sharing practices with collaborators
 - Manage encrypted data through its complete lifecycle
 ::::::::::::::::::::::::::::::::::::::::::::::::
@@ -141,7 +141,7 @@ rm -r /bigdata/lab/<labname>/interviews_cipher/
 rm /rhome/$(whoami)/backup/gocryptfs_interviews.backup
 ```
 
-## Integration With Other Sagehen Tools
+## Integration With Other Sagehen HPC Tools
 
 **OnDemand (Jupyter, RStudio, VS Code)**: Mount encrypted data in your session script:
 ```bash

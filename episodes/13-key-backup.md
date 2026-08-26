@@ -281,7 +281,7 @@ Attachment: gocryptfs_secret_2024_backup.conf
 
 | Location | Pros | Cons | Risk Rating | Recommendation |
 |----------|------|------|-------------|-----------------|
-| **/rhome backup** | Convenient, accessible from cluster, integrated in Sagehen backups | Depends on single system (Pomona HPC), admin access possible | Medium | ✓ Primary backup |
+| **/rhome backup** | Convenient, accessible from cluster, integrated in Sagehen HPC backups | Depends on single system (Pomona HPC), admin access possible | Medium | ✓ Primary backup |
 | **USB drive** | Physical media, truly offsite, no internet dependency | Can be lost/stolen, requires manual storage, must remember where | Low (if stored safely) | ✓ Secondary backup |
 | **Bitwarden cloud** | Accessible anywhere, encrypted, free, open-source | Depends on Bitwarden service, requires master password | Low-Medium | ✓ Tertiary backup |
 | **1Password** | Professional password manager, accessible everywhere | Paid service, depends on cloud provider | Low-Medium | ✓ Tertiary backup |
@@ -294,7 +294,7 @@ Attachment: gocryptfs_secret_2024_backup.conf
 
 ## Challenge: Design Your Backup Strategy
 
-You are a researcher working with HIPAA-regulated patient interview transcripts stored in an encrypted directory at `/bigdata/lab/neurolab/interviews_cipher/` on the Sagehen cluster. Design a complete 3-2-1 backup plan for your `gocryptfs.conf` and password. Your plan must address:
+You are a researcher working with HIPAA-regulated patient interview transcripts stored in an encrypted directory at `/bigdata/lab/neurolab/interviews_cipher/` on the Sagehen HPC cluster. Design a complete 3-2-1 backup plan for your `gocryptfs.conf` and password. Your plan must address:
 
 1. Where will each of your 3 copies of `gocryptfs.conf` be stored?
 2. What 2 different media types will you use?

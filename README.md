@@ -68,7 +68,7 @@ Approximately 2-3 hours, depending on hands-on practice with encrypted directory
 ## Technical Requirements
 
 - Sagehen HPC cluster account with storage allocation
-- SSH access to Sagehen login nodes
+- SSH access to Sagehen HPC login nodes
 - Basic Linux command-line tools (mount, mkdir, chmod)
 - Text editor for configuration files
 - Optional: SLURM job submission scripts to integrate encryption into workflows

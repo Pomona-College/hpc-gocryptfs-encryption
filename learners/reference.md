@@ -711,7 +711,7 @@ tail -f analysis_*.log
 
 | Classification | Tier | Encryption | chmod | Who Can Access |
 |---|---|---|---|---|
-| **PUBLIC** | Green | Optional | 755 | World (anyone on Sagehen) |
+| **PUBLIC** | Green | Optional | 755 | World (anyone on Sagehen HPC) |
 | **PROPRIETARY** | Orange | Recommended | 750 | Owner + group members only |
 | **RESTRICTED** | Red | **Mandatory** | 700+gocryptfs | Owner only (encrypted) |
 
