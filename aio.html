@@ -1565,7 +1565,7 @@ delayed discovery</li>
 <!-- SLURM Documentation -->
 </section></section><section id="aio-04-gocryptfs-architecture"><p>Content from <a href="04-gocryptfs-architecture.html">gocryptfs Architecture</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/04-gocryptfs-architecture.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -1678,7 +1678,7 @@ not the login node. Episode 6 covers this in detail.</p>
 <p>This is the <strong>actual encrypted storage</strong> on disk:</p>
 <ul>
 <li>Contains encrypted files with encrypted names</li>
-<li>Stored permanently on Sagehen’s BeeGFS filesystem</li>
+<li>Stored permanently on Sagehen HPC’s BeeGFS filesystem</li>
 <li>Looks like random data to anyone without the passphrase</li>
 <li>This is what gets backed up</li>
 <li>Remains encrypted when you’re not actively working</li>
@@ -1785,7 +1785,7 @@ transparently.</p>
 <div id="challenge-trace-the-data-flow" class="callout-inner">
 <h3 class="callout-title">Challenge: Trace the Data Flow</h3>
 <div class="callout-content">
-<p>A researcher runs this command on the Sagehen cluster:</p>
+<p>A researcher runs this command on the Sagehen HPC cluster:</p>
 <div class="codewrapper sourceCode" id="cb5">
 <h3 class="code-label">BASH<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
@@ -1876,7 +1876,7 @@ read(), write() normally</li>
 </div>
 </section></section><section id="aio-05-encryption-internals"><p>Content from <a href="05-encryption-internals.html">Encryption, Performance, and Comparison</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/05-encryption-internals.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -2046,7 +2046,7 @@ produce different ciphertexts.</p>
 </h2>
 <hr class="half-width">
 <p>Modern CPUs have AES-NI hardware instructions, so encryption is fast.
-Typical overhead: ~5-10% for file processing. Example: on Sagehen,
+Typical overhead: ~5-10% for file processing. Example: on Sagehen HPC,
 sequential reads show ~7% overhead (450 MB/sec unencrypted → 420 MB/sec
 encrypted). For most research workloads, encryption overhead is
 negligible compared to your algorithm’s computational cost. If your job
@@ -2320,7 +2320,7 @@ safe practices</li>
 <!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
 <script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script><!-- Pomona College Resources --><!-- Regulatory and Compliance --><!-- gocryptfs and Encryption Tools --><!-- Password and Key Management --><!-- The Carpentries --><!-- Data Repositories and Sharing --><!-- SLURM Documentation --></section></section><section id="aio-06-planning-directories"><p>Content from <a href="06-planning-directories.html">Planning Your Encrypted Directories</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/06-planning-directories.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -2561,7 +2561,7 @@ files on your computer).</p>
 <div id="load-the-gocryptfs-module-first" class="callout-inner">
 <h3 class="callout-title">Load the gocryptfs Module First</h3>
 <div class="callout-content">
-<p>Sagehen provides gocryptfs through Lmod (currently
+<p>Sagehen HPC provides gocryptfs through Lmod (currently
 <code>gocryptfs/2.6.1</code>). Before the steps below, load it and
 confirm the command is available:</p>
 <div class="codewrapper sourceCode" id="cb4">
@@ -2662,7 +2662,7 @@ quota_check.sh): 4. Space available for your data: 5. Your password
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
 <div class="accordion-body">
 <p><strong>Expected outcomes</strong>:</p>
 <ol style="list-style-type: decimal">
@@ -3049,7 +3049,7 @@ original name</p></li>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p><strong>Expected outcomes</strong>:</p>
 <ul>
@@ -3116,7 +3116,7 @@ world-readable</li>
 <!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
 <script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script><!-- Pomona College Resources --><!-- Regulatory and Compliance --><!-- gocryptfs and Encryption Tools --><!-- Password and Key Management --><!-- The Carpentries --><!-- Data Repositories and Sharing --><!-- SLURM Documentation --></section></section><section id="aio-08-mounting-workflow"><p>Content from <a href="08-mounting-workflow.html">Daily Mount and Unmount Workflow</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/08-mounting-workflow.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -3170,10 +3170,10 @@ completion</li>
 <h3 class="callout-title">Mount From a Compute Session, Onto
 /scratch</h3>
 <div class="callout-content">
-<p>Two hard rules on Sagehen: the plain directory (mountpoint) must be
-on node-local <code>/scratch/$USER/</code> — FUSE refuses to mount onto
-<code>/bigdata</code> (BeeGFS is a network filesystem) — and mounting
-happens <strong>inside a compute session</strong>
+<p>Two hard rules on Sagehen HPC: the plain directory (mountpoint) must
+be on node-local <code>/scratch/$USER/</code> — FUSE refuses to mount
+onto <code>/bigdata</code> (BeeGFS is a network filesystem) — and
+mounting happens <strong>inside a compute session</strong>
 (<code>srun --pty bash</code> for interactive work, or within an
 <code>sbatch</code> script), never on the login node. Since
 <code>/scratch</code> is cleaned between jobs, start each session with
@@ -3189,18 +3189,16 @@ Work normally → Applications access files transparently</p>
 directories → Encrypted data becomes inaccessible</p>
 <p><strong>Key principle</strong>: Mounted = accessible but protected by
 FUSE permissions (700); Unmounted = physically encrypted on disk</p>
-<div id="callout2" class="callout">
+<figure><img src="fig/daily-mount-cycle.png" alt="Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session." class="figure mx-auto d-block"><div class="figcaption">The daily rhythm: mount in the morning, work all
+day, unmount before you leave.</div>
+</figure><div id="security-mounted-vs.-unmounted" class="callout">
 <div class="callout-square">
 <i class="callout-icon" data-feather="bell"></i>
 </div>
 <span class="callout-header">Callout</span>
-<div class="callout-inner">
+<div id="security-mounted-vs.-unmounted" class="callout-inner">
+<h3 class="callout-title">Security: Mounted vs. Unmounted</h3>
 <div class="callout-content">
-<figure><img src="fig/daily-mount-cycle.png" alt="Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session." class="figure mx-auto d-block"><div class="figcaption">The daily rhythm: mount in the morning, work all
-day, unmount before you leave.</div>
-</figure><div class="section level2">
-<h2 id="security-mounted-vs--unmounted">Security: Mounted vs. Unmounted<a class="anchor" aria-label="anchor" href="#security-mounted-vs--unmounted"></a>
-</h2>
 <ol style="list-style-type: decimal">
 <li>
 <strong>At rest</strong> (unmounted): Files encrypted on disk.
@@ -3211,7 +3209,6 @@ Only you and root can access due to FUSE permissions (700).</li>
 </ol>
 <p>Best practice: Unmount when away from your desk to protect against
 local disk access attacks.</p>
-</div>
 </div>
 </div>
 </div>
@@ -3236,8 +3233,8 @@ appear (must be empty and owned by you)</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1" aria-label="code-block-2-2"></a><span class="ex">Password:</span> [enter your password]</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1" aria-label="code-block-2-3"></a><span class="ex">Filesystem</span> mounted successfully.</span></code></pre>
 </div>
-<figure><img src="fig/08-gocryptfs-mount-success.png" alt="Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns." class="figure mx-auto d-block"><div class="figcaption">The same sequence on Sagehen: claim a compute
-session, create the mountpoint, mount.</div>
+<figure><img src="fig/08-gocryptfs-mount-success.png" alt="Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns." class="figure mx-auto d-block"><div class="figcaption">The same sequence on Sagehen HPC: claim a
+compute session, create the mountpoint, mount.</div>
 </figure><p>Note the order: the <code>srun</code> session comes first, then
 <code>mkdir -p</code> on <code>/scratch</code>, then the mount. Running
 <code>gocryptfs</code> before you have a compute session, or against a
@@ -3516,7 +3513,7 @@ mount/unmount without errors</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p><strong>Expected outcomes</strong>:</p>
 <ol style="list-style-type: decimal">
@@ -3573,7 +3570,7 @@ automatically</li>
 <!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
 <script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script><!-- Pomona College Resources --><!-- Regulatory and Compliance --><!-- gocryptfs and Encryption Tools --><!-- Password and Key Management --><!-- The Carpentries --><!-- Data Repositories and Sharing --><!-- SLURM Documentation --></section></section><section id="aio-09-non-interactive-mounting"><p>Content from <a href="09-non-interactive-mounting.html">Non-Interactive Mounting and Troubleshooting</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/09-non-interactive-mounting.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -3603,7 +3600,7 @@ methods?</li>
 <ul>
 <li>Mount gocryptfs non-interactively in SLURM job scripts</li>
 <li>Compare security of three non-interactive mounting methods</li>
-<li>Understand password storage security on Sagehen</li>
+<li>Understand password storage security on Sagehen HPC</li>
 <li>Troubleshoot common mount errors</li>
 <li>Understand mount persistence across reboots and job completion</li>
 <li>Implement proper error handling in SLURM scripts</li>
@@ -5423,7 +5420,7 @@ failure, timeout, or cancellation</li>
 <!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
 <script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script><!-- Pomona College Resources --><!-- Regulatory and Compliance --><!-- gocryptfs and Encryption Tools --><!-- Password and Key Management --><!-- The Carpentries --><!-- Data Repositories and Sharing --><!-- SLURM Documentation --></section></section><section id="aio-13-key-backup"><p>Content from <a href="13-key-backup.html">Key Backup Strategy</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/13-key-backup.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -5825,7 +5822,7 @@ different locations, and test them regularly.</div>
 <tbody>
 <tr>
 <td><strong>/rhome backup</strong></td>
-<td>Convenient, accessible from cluster, integrated in Sagehen
+<td>Convenient, accessible from cluster, integrated in Sagehen HPC
 backups</td>
 <td>Depends on single system (Pomona HPC), admin access possible</td>
 <td>Medium</td>
@@ -5896,7 +5893,7 @@ recovery vulnerability</td>
 <div class="callout-content">
 <p>You are a researcher working with HIPAA-regulated patient interview
 transcripts stored in an encrypted directory at
-<code>/bigdata/lab/neurolab/interviews_cipher/</code> on the Sagehen
+<code>/bigdata/lab/neurolab/interviews_cipher/</code> on the Sagehen HPC
 cluster. Design a complete 3-2-1 backup plan for your
 <code>gocryptfs.conf</code> and password. Your plan must address:</p>
 <ol style="list-style-type: decimal">
@@ -5915,7 +5912,7 @@ stored?</li>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p><strong>Copy 1 — On-cluster (<code>/rhome</code>):</strong></p>
 <div class="codewrapper sourceCode" id="cb12">
@@ -6755,7 +6752,7 @@ physical safe only.</li>
 <!-- highlight <labname>/<myusername> placeholders in code blocks; remove if the varnish theme handles this natively -->
 <script>(function(){var CSS='.sh-placeholder{color:#c2410c;font-weight:700}[data-bs-theme="dark"] .sh-placeholder,html.dark .sh-placeholder{color:#fdba74}@media (prefers-color-scheme: dark){[data-bs-theme="auto"] .sh-placeholder{color:#fdba74}}';var RX=/<labname>|<myusername>/g;function firstMatch(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),nodes=[],full='';while(w.nextNode()){nodes.push({n:w.currentNode,s:full.length});full+=w.currentNode.nodeValue;}RX.lastIndex=0;var m;while((m=RX.exec(full))){var s=m.index,e=s+m[0].length,inSpan=false,parts=[];for(var j=0;j<nodes.length;j++){var ns=nodes[j].s,ne=ns+nodes[j].n.nodeValue.length;if(ne<=s||ns>=e)continue;parts.push({node:nodes[j].n,a:Math.max(s-ns,0),b:Math.min(e-ns,nodes[j].n.nodeValue.length)});var p=nodes[j].n.parentNode;while(p&&p!==el){if(p.classList&&p.classList.contains('sh-placeholder')){inSpan=true;break;}p=p.parentNode;}}if(!inSpan&&parts.length)return parts;}return null;}function wrapParts(parts){for(var i=parts.length-1;i>=0;i--){var t=parts[i].node,txt=t.nodeValue,a=parts[i].a,b=parts[i].b;var span=document.createElement('span');span.className='sh-placeholder';span.textContent=txt.slice(a,b);var f=document.createDocumentFragment();if(a>0)f.appendChild(document.createTextNode(txt.slice(0,a)));f.appendChild(span);if(b<txt.length)f.appendChild(document.createTextNode(txt.slice(b)));t.parentNode.replaceChild(f,t);}}function run(){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);document.querySelectorAll('pre,code').forEach(function(el){var guard=0,parts;while((parts=firstMatch(el))&&guard++<500){wrapParts(parts);}});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script><!-- Pomona College Resources --><!-- Regulatory and Compliance --><!-- gocryptfs and Encryption Tools --><!-- Password and Key Management --><!-- The Carpentries --><!-- Data Repositories and Sharing --><!-- SLURM Documentation --></section></section><section id="aio-16-security-best-practices"><p>Content from <a href="16-security-best-practices.html">Security Best Practices and Troubleshooting</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/16-security-best-practices.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -7169,7 +7166,7 @@ encryption.</p>
 <div id="challenge-find-the-mistakes" class="callout-inner">
 <h3 class="callout-title">Challenge: Find the Mistakes</h3>
 <div class="callout-content">
-<p>Dr. Chen is a new researcher on the Sagehen cluster working with
+<p>Dr. Chen is a new researcher on the Sagehen HPC cluster working with
 FERPA-protected student survey data. Read through her workflow and
 identify <strong>5 security mistakes</strong>.</p>
 <blockquote>
@@ -7262,7 +7259,7 @@ for temporary data) and batching operations</li>
 </div>
 </section></section><section id="aio-17-verification-maintenance"><p>Content from <a href="17-verification-maintenance.html">Verification, Sharing, and Maintenance</a></p>
 <hr>
-<p>Last updated on 2026-08-24 |
+<p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/17-verification-maintenance.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 <div class="text-end">
@@ -7294,7 +7291,7 @@ for temporary data) and batching operations</li>
 <li>Maintain encrypted systems through a practical maintenance
 schedule</li>
 <li>Respond appropriately to potential security incidents</li>
-<li>Integrate gocryptfs with other Sagehen tools (OnDemand, VS Code,
+<li>Integrate gocryptfs with other Sagehen HPC tools (OnDemand, VS Code,
 rclone)</li>
 <li>Implement secure data sharing practices with collaborators</li>
 <li>Manage encrypted data through its complete lifecycle</li>
@@ -7428,7 +7425,7 @@ sufficient (encrypted data is unreadable without the password/key):</p>
 <pre class="sourceCode bash" tabindex="0"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1" aria-label="code-block-6-1"></a><span class="fu">rm</span> <span class="at">-r</span> /bigdata/lab/<span class="op">&lt;</span>labname<span class="op">&gt;</span>/interviews_cipher/</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1" aria-label="code-block-6-2"></a><span class="fu">rm</span> /rhome/<span class="va">$(</span><span class="fu">whoami</span><span class="va">)</span>/backup/gocryptfs_interviews.backup</span></code></pre>
 </div>
-</section><section><h2 class="section-heading" id="integration-with-other-sagehen-tools">Integration With Other Sagehen Tools<a class="anchor" aria-label="anchor" href="#integration-with-other-sagehen-tools"></a>
+</section><section><h2 class="section-heading" id="integration-with-other-sagehen-hpc-tools">Integration With Other Sagehen HPC Tools<a class="anchor" aria-label="anchor" href="#integration-with-other-sagehen-hpc-tools"></a>
 </h2>
 <hr class="half-width">
 <p><strong>OnDemand (Jupyter, RStudio, VS Code)</strong>: Mount
@@ -7684,8 +7681,8 @@ dates in an inventory file</li>
   "url": "https://pomona-college.github.io/hpc-gocryptfs-encryption/aio.html",
   "identifier": "https://pomona-college.github.io/hpc-gocryptfs-encryption/aio.html",
   "dateCreated": "2026-03-05",
-  "dateModified": "2026-08-26",
-  "datePublished": "2026-08-26"
+  "dateModified": "2026-08-27",
+  "datePublished": "2026-08-27"
 }
 
   </script><script>

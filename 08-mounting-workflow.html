@@ -414,7 +414,7 @@
       </div>
     </nav><main id="main-content" class="main-content"><div class="container lesson-content">
         <h1>Daily Mount and Unmount Workflow</h1>
-        <p>Last updated on 2026-08-24 |
+        <p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/08-mounting-workflow.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 
@@ -468,10 +468,10 @@ completion</li>
 <h3 class="callout-title">Mount From a Compute Session, Onto
 /scratch</h3>
 <div class="callout-content">
-<p>Two hard rules on Sagehen: the plain directory (mountpoint) must be
-on node-local <code>/scratch/$USER/</code> — FUSE refuses to mount onto
-<code>/bigdata</code> (BeeGFS is a network filesystem) — and mounting
-happens <strong>inside a compute session</strong>
+<p>Two hard rules on Sagehen HPC: the plain directory (mountpoint) must
+be on node-local <code>/scratch/$USER/</code> — FUSE refuses to mount
+onto <code>/bigdata</code> (BeeGFS is a network filesystem) — and
+mounting happens <strong>inside a compute session</strong>
 (<code>srun --pty bash</code> for interactive work, or within an
 <code>sbatch</code> script), never on the login node. Since
 <code>/scratch</code> is cleaned between jobs, start each session with
@@ -487,17 +487,16 @@ Work normally → Applications access files transparently</p>
 directories → Encrypted data becomes inaccessible</p>
 <p><strong>Key principle</strong>: Mounted = accessible but protected by
 FUSE permissions (700); Unmounted = physically encrypted on disk</p>
-<div id="callout2" class="callout">
+<figure><img src="fig/daily-mount-cycle.png" alt="Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session." class="figure mx-auto d-block"><div class="figcaption">The daily rhythm: mount in the morning, work all
+day, unmount before you leave.</div>
+</figure><div id="security-mounted-vs.-unmounted" class="callout">
 <div class="callout-square">
 <i class="callout-icon" data-feather="bell"></i>
 </div>
 <span class="callout-header">Callout</span>
-<div class="callout-inner">
+<div id="security-mounted-vs.-unmounted" class="callout-inner">
+<h3 class="callout-title">Security: Mounted vs. Unmounted</h3>
 <div class="callout-content">
-<figure><img src="fig/daily-mount-cycle.png" alt="Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session." class="figure mx-auto d-block"><div class="figcaption">The daily rhythm: mount in the morning, work all
-day, unmount before you leave.</div>
-</figure><div class="section level2">
-<h2 id="security-mounted-vs--unmounted">Security: Mounted vs. Unmounted<a class="anchor" aria-label="anchor" href="#security-mounted-vs--unmounted"></a></h2>
 <ol style="list-style-type: decimal"><li>
 <strong>At rest</strong> (unmounted): Files encrypted on disk.
 Without the password, data is unreadable.</li>
@@ -506,7 +505,6 @@ Without the password, data is unreadable.</li>
 Only you and root can access due to FUSE permissions (700).</li>
 </ol><p>Best practice: Unmount when away from your desk to protect against
 local disk access attacks.</p>
-</div>
 </div>
 </div>
 </div>
@@ -529,8 +527,8 @@ appear (must be empty and owned by you)</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1" aria-label="code-block-2-2"></a><span class="ex">Password:</span> [enter your password]</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1" aria-label="code-block-2-3"></a><span class="ex">Filesystem</span> mounted successfully.</span></code></pre>
 </div>
-<figure><img src="fig/08-gocryptfs-mount-success.png" alt="Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns." class="figure mx-auto d-block"><div class="figcaption">The same sequence on Sagehen: claim a compute
-session, create the mountpoint, mount.</div>
+<figure><img src="fig/08-gocryptfs-mount-success.png" alt="Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns." class="figure mx-auto d-block"><div class="figcaption">The same sequence on Sagehen HPC: claim a
+compute session, create the mountpoint, mount.</div>
 </figure><p>Note the order: the <code>srun</code> session comes first, then
 <code>mkdir -p</code> on <code>/scratch</code>, then the mount. Running
 <code>gocryptfs</code> before you have a compute session, or against a
@@ -783,7 +781,7 @@ mount/unmount without errors</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Show me the solution </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p><strong>Expected outcomes</strong>:</p>
 <ol style="list-style-type: decimal"><li>First mount successful, file created and visible</li>
@@ -894,8 +892,8 @@ automatically</li>
   "url": "https://pomona-college.github.io/hpc-gocryptfs-encryption/08-mounting-workflow.html",
   "identifier": "https://pomona-college.github.io/hpc-gocryptfs-encryption/08-mounting-workflow.html",
   "dateCreated": "2026-03-05",
-  "dateModified": "2026-08-24",
-  "datePublished": "2026-08-26"
+  "dateModified": "2026-08-27",
+  "datePublished": "2026-08-27"
 }
 
   </script><script>

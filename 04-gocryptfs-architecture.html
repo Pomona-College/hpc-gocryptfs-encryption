@@ -412,7 +412,7 @@
       </div>
     </nav><main id="main-content" class="main-content"><div class="container lesson-content">
         <h1>gocryptfs Architecture</h1>
-        <p>Last updated on 2026-08-24 |
+        <p>Last updated on 2026-08-27 |
 
         <a href="https://github.com/Pomona-College/hpc-gocryptfs-encryption/edit/main/episodes/04-gocryptfs-architecture.md" class="external-link">Edit this page <i aria-hidden="true" data-feather="edit"></i></a></p>
 
@@ -516,7 +516,7 @@ not the login node. Episode 6 covers this in detail.</p>
 (<code>/bigdata/lab/&lt;labname&gt;/secret_cipher</code>)<a class="anchor" aria-label="anchor" href="#cipher-directory-bigdatalablabnamesecret_cipher"></a></h3>
 <p>This is the <strong>actual encrypted storage</strong> on disk:</p>
 <ul><li>Contains encrypted files with encrypted names</li>
-<li>Stored permanently on Sagehen’s BeeGFS filesystem</li>
+<li>Stored permanently on Sagehen HPC’s BeeGFS filesystem</li>
 <li>Looks like random data to anyone without the passphrase</li>
 <li>This is what gets backed up</li>
 <li>Remains encrypted when you’re not actively working</li>
@@ -614,7 +614,7 @@ transparently.</p>
 <div id="challenge-trace-the-data-flow" class="callout-inner">
 <h3 class="callout-title">Challenge: Trace the Data Flow</h3>
 <div class="callout-content">
-<p>A researcher runs this command on the Sagehen cluster:</p>
+<p>A researcher runs this command on the Sagehen HPC cluster:</p>
 <div class="codewrapper sourceCode" id="cb5">
 <h3 class="code-label">BASH<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
 </h3>
@@ -758,8 +758,8 @@ read(), write() normally</li>
   "url": "https://pomona-college.github.io/hpc-gocryptfs-encryption/04-gocryptfs-architecture.html",
   "identifier": "https://pomona-college.github.io/hpc-gocryptfs-encryption/04-gocryptfs-architecture.html",
   "dateCreated": "2026-03-05",
-  "dateModified": "2026-08-24",
-  "datePublished": "2026-08-26"
+  "dateModified": "2026-08-27",
+  "datePublished": "2026-08-27"
 }
 
   </script><script>
