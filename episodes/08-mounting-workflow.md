@@ -44,9 +44,9 @@ Mounting and unmounting is part of your daily work habit, not a one-time setup:
 
 **Key principle**: Mounted = accessible but protected by FUSE permissions (700); Unmounted = physically encrypted on disk
 
-::::::::::::::::::::::::::::::::::::: callout
 ![The daily rhythm: mount in the morning, work all day, unmount before you leave.](fig/daily-mount-cycle.png){alt='Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session.'}
 
+::::::::::::::::::::::::::::::::::::: callout
 ## Security: Mounted vs. Unmounted
 
 1. **At rest** (unmounted): Files encrypted on disk. Without the password, data is unreadable.
