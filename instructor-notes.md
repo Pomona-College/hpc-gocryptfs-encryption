@@ -47,7 +47,7 @@ title: Instructor Notes
 cannot mount onto `/bigdata` or `/rhome` (BeeGFS), and the login node is not
 for gocryptfs daemons.
 
-- [ ] **Access verification:** Confirm your own Sagehen account access; test gocryptfs module availability (`module load gocryptfs; gocryptfs --version`)
+- [ ] **Access verification:** Confirm your own Sagehen HPC account access; test gocryptfs module availability (`module load gocryptfs; gocryptfs --version`)
 - [ ] **Demo vaults:** Create 3–4 pre-initialized demo encrypted vaults on `/bigdata/lab/awilsonlab/demo` for live demonstrations (use temporary demo-only passwords, document separately)
 - [ ] **Test commands:** Verify mounting/unmounting work reliably; test both interactive and non-interactive (password-from-file) mounting
 - [ ] **File system layout:** Confirm understanding of Sagehen storage: `/rhome` (home), `/bigdata` (shared lab), `/scratch` (non-persistent), `/tmpfs` (RAM-backed)

@@ -27,7 +27,7 @@ exercises: 10
 
 ## Mount From a Compute Session, Onto /scratch
 
-Two hard rules on Sagehen: the plain directory (mountpoint) must be on
+Two hard rules on Sagehen HPC: the plain directory (mountpoint) must be on
 node-local `/scratch/$USER/` — FUSE refuses to mount onto `/bigdata` (BeeGFS is
 a network filesystem) — and mounting happens **inside a compute session**
 (`srun --pty bash` for interactive work, or within an `sbatch` script), never
@@ -44,9 +44,9 @@ Mounting and unmounting is part of your daily work habit, not a one-time setup:
 
 **Key principle**: Mounted = accessible but protected by FUSE permissions (700); Unmounted = physically encrypted on disk
 
-::::::::::::::::::::::::::::::::::::: callout
 ![The daily rhythm: mount in the morning, work all day, unmount before you leave.](fig/daily-mount-cycle.png){alt='Four-step daily cycle. Step 1, mount in the morning: start an interactive compute session with srun, create the mountpoint with mkdir -p /scratch/$USER/plain, then run gocryptfs. Step 2, work all day: use files in the plain directory; scripts, analysis, and jobs run with encryption invisible. Step 3, unmount in the evening: fusermount -u plain; the plain view disappears and the passphrase is forgotten. Step 4, at rest overnight: only encrypted data on disk, safe unattended. A dashed arrow loops back to mounting again the next morning. Banner: mounted equals usable but exposed to your session; unmounted equals protected; mount on /scratch inside a compute session.'}
 
+::::::::::::::::::::::::::::::::::::: callout
 ## Security: Mounted vs. Unmounted
 
 1. **At rest** (unmounted): Files encrypted on disk. Without the password, data is unreadable.
@@ -74,7 +74,7 @@ Password: [enter your password]
 Filesystem mounted successfully.
 ```
 
-![The same sequence on Sagehen: claim a compute session, create the mountpoint, mount.](fig/08-gocryptfs-mount-success.png){alt='Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns.'}
+![The same sequence on Sagehen HPC: claim a compute session, create the mountpoint, mount.](fig/08-gocryptfs-mount-success.png){alt='Terminal on Sagehen. An srun command on the short partition opens a five-minute interactive session running a small script that first creates the mountpoint with mkdir -p under /scratch/$USER, then runs gocryptfs against a cipher directory on /bigdata. gocryptfs prompts for a password, reports that it is decrypting the master key, prints an InoMap spillMap line, and finishes with the message that the filesystem is mounted and ready. The shell prompt then returns.'}
 
 Note the order: the `srun` session comes first, then `mkdir -p` on `/scratch`,
 then the mount. Running `gocryptfs` before you have a compute session, or against

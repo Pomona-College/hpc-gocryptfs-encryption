@@ -99,7 +99,7 @@ gocryptfs encrypts filenames in addition to file contents. Original files like `
 
 ## Performance: Encryption Overhead is Minimal
 
-Modern CPUs have AES-NI hardware instructions, so encryption is fast. Typical overhead: ~5-10% for file processing. Example: on Sagehen, sequential reads show ~7% overhead (450 MB/sec unencrypted → 420 MB/sec encrypted). For most research workloads, encryption overhead is negligible compared to your algorithm's computational cost. If your job takes 24 hours with 1 hour of I/O, encryption adds ~6 minutes—acceptable.
+Modern CPUs have AES-NI hardware instructions, so encryption is fast. Typical overhead: ~5-10% for file processing. Example: on Sagehen HPC, sequential reads show ~7% overhead (450 MB/sec unencrypted → 420 MB/sec encrypted). For most research workloads, encryption overhead is negligible compared to your algorithm's computational cost. If your job takes 24 hours with 1 hour of I/O, encryption adds ~6 minutes—acceptable.
 
 ## Why gocryptfs for HPC
 
